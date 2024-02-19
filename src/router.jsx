@@ -2,7 +2,7 @@ import { createBrowserRouter, Navigate } from "react-router-dom";
 
 import UserLayout from "@layouts/UserLayout.jsx";
 import UserHome from "@views/user/UserHome.jsx";
-import UserSettings from "@/views/user/settings/UserSettings.jsx";
+import UserSettings from "@views/user/settings/UserSettings.jsx";
 import UserSettingsProfile from "@views/user/settings/UserSettingsProfile.jsx";
 import UserSettingsCrypto from "@views/user/settings/UserSettingsCrypto.jsx";
 import Error404 from "@views/Error404.jsx";
