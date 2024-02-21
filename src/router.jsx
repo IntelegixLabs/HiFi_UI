@@ -2,6 +2,7 @@ import { createBrowserRouter, Navigate } from "react-router-dom";
 
 import UserLayout from "@layouts/UserLayout.jsx";
 import UserHome from "@views/user/UserHome.jsx";
+import UserStocks from "@views/user/UserStocks.jsx";
 import UserSettings from "@views/user/settings/UserSettings.jsx";
 import UserSettingsProfile from "@views/user/settings/UserSettingsProfile.jsx";
 import UserSettingsCrypto from "@views/user/settings/UserSettingsCrypto.jsx";
@@ -18,6 +19,11 @@ const router = createBrowserRouter([
         path: "/",
         name: "UserHome",
         element: <UserHome />,
+      },
+      {
+        path: "/stocks",
+        name: "UserStocks",
+        element: <UserStocks />,
       },
       {
         path: "/settings",
