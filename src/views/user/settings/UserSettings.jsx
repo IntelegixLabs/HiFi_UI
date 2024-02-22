@@ -6,10 +6,6 @@ import IMG_USER_PROFILE from "@assets/profile_pic.png";
 export default function UserSettings() {
   const location = useLocation();
 
-  useEffect(() => {
-    console.log("Location", location);
-  }, []);
-
   return (
     <div className="max-w-7xl mx-auto">
       <div className="mt-6">

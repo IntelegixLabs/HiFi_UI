@@ -1,4 +1,4 @@
-import React, { Fragment } from "react";
+import React, { Fragment, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 
 export default function Navbar() {
@@ -23,9 +23,9 @@ export default function Navbar() {
     </nav> */}
       <div className="sticky top-0 shadow-sm bg-white/60 border-b backdrop-blur-sm">
         <nav className="relative max-w-7xl mx-auto py-2 flex justify-between items-center">
-          <a className="text-3xl font-bold leading-none" href="#">
+          <Link to="/" className="text-3xl font-bold leading-none">
             {import.meta.env.VITE_APP_NAME}
-          </a>
+          </Link>
           <div className="lg:hidden">
             <button className="navbar-burger flex items-center text-blue-600 p-3">
               <svg
@@ -41,15 +41,14 @@ export default function Navbar() {
           <ul className="hidden absolute top-1/2 left-1/2 transform -translate-y-1/2 -translate-x-1/2 lg:flex lg:mx-auto lg:items-center lg:w-auto lg:space-x-6">
             <li>
               <Link
-                to="/"
+                to="/stocks"
                 className={`text-sm ${
-                  location.pathname === "/"
+                  location.pathname === "/stocks"
                     ? "text-blue-600"
                     : "text-gray-400 hover:text-gray-500"
                 }`}
-                href="#"
               >
-                Home
+                Stocks
               </Link>
             </li>
             <li className="text-gray-300">
@@ -61,46 +60,24 @@ export default function Navbar() {
                 viewBox="0 0 24 24"
               >
                 <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
                   d="M12 5v0m0 7v0m0 7v0m0-13a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"
                 />
               </svg>
             </li>
             <li>
               <Link
-                to="/settings/"
+                to="/settings"
                 className={`text-sm ${
-                  location.pathname === "/"
-                    ? "text-gray-400 hover:text-gray-500"
-                    : "text-blue-600"
+                  location.pathname === "/settings/profile"
+                    ? "text-blue-600"
+                    : "text-gray-400 hover:text-gray-500"
                 }`}
-                href="#"
               >
                 Settings
               </Link>
-            </li>
-            <li className="text-gray-300">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                stroke="currentColor"
-                className="w-4 h-4 current-fill"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M12 5v0m0 7v0m0 7v0m0-13a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"
-                />
-              </svg>
-            </li>
-            <li>
-              <a className="text-sm text-gray-400 hover:text-gray-500" href="#">
-                Menu 3
-              </a>
             </li>
           </ul>
           {/* <a
@@ -144,9 +121,9 @@ export default function Navbar() {
                 stroke="currentColor"
               >
                 <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
                   d="M6 18L18 6M6 6l12 12"
                 ></path>
               </svg>
