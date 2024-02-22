@@ -1,15 +1,16 @@
 // keycloak-config.js
 import Keycloak from "keycloak-js";
 
-const keycloakConfig = new Keycloak({
+let initOptions = {
   url: import.meta.env.VITE_APP_KEYCLOAK_URL,
   realm: import.meta.env.VITE_APP_KEYCLOAK_REALM,
   clientId: import.meta.env.VITE_APP_KEYCLOAK_CLIENT_ID,
-});
+  clientSecret: import.meta.env.VITE_APP_KEYCLOAK_CLIENT_SECRET,
+};
 
-//const keycloak = new Keycloak(keycloakConfig);
+const keycloakConfig = new Keycloak(initOptions);
 
-//keycloak.init({ onLoad: "check-sso" })
+// keycloak.init({ onLoad: "check-sso" })
 //    .then((auth) => {
 //        console.log("Keycloak Authenticated:", auth);
 //    })
