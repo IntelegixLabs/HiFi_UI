@@ -19,13 +19,22 @@ export default function UserStocks() {
   const [StockSymbol, setStockSymbol] = useState("");
   const [StockOverview, setStockOverview] = useState({});
   const [NewsSentiments, setNewsSentiments] = useState({});
-
+  const [timeFrom, setTimeFrom] = useState(new Date());
+  const [timeTo, setTimeTo] = useState(new Date());
   const [tab, setTab] = useState("graph");
 
   // Loaders Indicators
   const [isGraphLoading, setIsGraphLoading] = useState(false);
   const [isStockOverviewLoading, setIsStockOverviewLoading] = useState(false);
   const [isNewsSentimentsLoading, setIsNewsSentimentsLoading] = useState(false);
+
+  useEffect(() => {
+    Api.get('/healthy').then((response) => {
+      console.log(response.data.detail);
+    }).catch((error) => {
+      console.log(error);
+    })
+  }, []);
 
   const chartContainer = useRef();
 
@@ -52,7 +61,9 @@ export default function UserStocks() {
           console.log(error);
         });
 
-      Api.get(`/fundamental_data/OVERVIEW/query?function=OVERVIEW&symbol=IBM`)
+      Api.get(
+        `/fundamental_data/OVERVIEW/query?function=OVERVIEW&symbol=${stockSymbol}`
+      )
         .then((response) => {
           setStockOverview(response.data);
           setIsStockOverviewLoading(false);
@@ -106,6 +117,7 @@ export default function UserStocks() {
     });
 
     candlestickSeries.setData(initialData.monthly_time_series);
+
     return () => {
       chart.remove();
     };
@@ -182,6 +194,10 @@ export default function UserStocks() {
         })}
       </div>
     );
+  };
+
+  const dateFormatterToTimestamp = (selectedDate) => {
+    return date.toISOString().slice(0, 13).replace(/[-:T]/g, "") + "00";
   };
 
   return (
@@ -1257,7 +1273,7 @@ export default function UserStocks() {
             </p>
           )}
           <div
-            className={`my-10 ${isGraphLoading ? "hidden" : ""} duration-200`}
+            className={`my-10 ${isGraphLoading ? "hidden" : ""}`}
             ref={chartContainer}
           ></div>
         </div>
