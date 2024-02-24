@@ -1,9 +1,100 @@
+import { useContext, useEffect, useState } from "react";
 import { Outlet, Link, useLocation } from "react-router-dom";
+
+import MarketplaceAbi from "../../../../blockchain/frontend/contractsData/Marketplace.json";
+import MarketplaceAddress from "../../../../blockchain/frontend/contractsData/Marketplace-address.json";
+import NFTAbi from "../../../../blockchain/frontend/contractsData/NFT.json";
+import NFTAddress from "../../../../blockchain/frontend/contractsData/NFT-address.json";
+// import NftContext from "../../../../blockchain/frontend/NftContext"
+import { ethers } from "ethers";
 
 import IMG_USER_PROFILE from "@assets/profile_pic.png";
 
 export default function UserSettings() {
   const location = useLocation();
+
+  // const { setAccount, setMarketplace, setNFT, setBalance, setIsLoading, account, setAccountType } = useContext(NftContext);
+  const [loading, setLoading] = useState(true);
+
+  const loadContracts = async (signer) => {
+    // Get deployed copies of contracts
+    const marketplace = new ethers.Contract(
+      MarketplaceAddress.address,
+      MarketplaceAbi.abi,
+      signer
+    );
+    // setMarketplace(marketplace)
+    // const fam = await marketplace.farmers(account)
+    // setAccountType(fam.name ? true : false)
+    const nft = new ethers.Contract(NFTAddress.address, NFTAbi.abi, signer);
+    // setNFT(nft)
+    setLoading(false);
+  };
+
+  const web3Handler = async () => {
+    if (!window.ethereum) {
+      alert("Install metamask extention");
+      return;
+    }
+    const accounts = await window.ethereum.request({
+      method: "eth_requestAccounts",
+    });
+    // setAccount(accounts[0])
+    // Get provider from Metamask
+    // const provider = new ethers.providers.JsonRpcProvider(RpcHttpUrl)
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+
+    // Set signer
+    const signer = provider.getSigner();
+    const balance = await provider.getBalance(accounts[0]);
+    const balances = ethers.utils.formatEther(balance);
+    // setBalance(balances)
+    loadContracts(signer);
+  };
+
+  useEffect(() => {
+    if (window.ethereum) {
+      window.ethereum.on("chainChanged", (chainId) => {
+        window.location.reload();
+      });
+
+      window.ethereum.on("accountsChanged", async function (accounts) {
+        // setAccount(accounts[0])
+        await web3Handler();
+      });
+    }
+  });
+
+  useEffect(() => {
+    if (!!localStorage.getItem("account")) {
+      (async () => {
+        const account = localStorage.getItem('account');
+        // setAccount(account)
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        const signer = provider.getSigner();
+        // const balance = await provider.getBalance(account);
+        const balances = ethers.utils.formatEther(balance);
+        // setBalance(balances)
+        const marketplace = new ethers.Contract(
+          MarketplaceAddress.address,
+          MarketplaceAbi.abi,
+          signer
+        );
+        // setMarketplace(marketplace)
+        const nft = new ethers.Contract(NFTAddress.address, NFTAbi.abi, signer);
+        // const fam = await marketplace.farmers(account)
+        // setAccountType(fam.name ? true : false)
+        // setNFT(nft)
+        // setIsLoading(true)
+      })();
+    }
+  }, []);
+
+  // useEffect(() => {
+  //   if (!!account) {
+  //     localStorage.setItem("account", account);
+  //   }
+  // }, [account]);
 
   return (
     <div className="max-w-7xl mx-auto">
@@ -68,7 +159,10 @@ export default function UserSettings() {
                     Connect your ethereum wallet
                   </p>
                 </div>
-                <button className="py-2.5 px-4 text-sm font-semibold bg-gray-100 hover:bg-gray-200 border border-gray-200 hover:text-gray-700 rounded-md">
+                <button
+                  className="py-2.5 px-4 text-sm font-semibold bg-gray-100 hover:bg-gray-200 border border-gray-200 hover:text-gray-700 rounded-md"
+                  onClick={web3Handler}
+                >
                   Connect
                 </button>
               </div>
