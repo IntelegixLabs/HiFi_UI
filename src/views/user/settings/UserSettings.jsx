@@ -1,5 +1,4 @@
 import { Outlet, Link, useLocation } from "react-router-dom";
-import { useEffect } from "react";
 
 import IMG_USER_PROFILE from "@assets/profile_pic.png";
 
@@ -90,7 +89,7 @@ export default function UserSettings() {
             </div>
           </div>
           <div className="w-4/6">
-            <div className="sticky top-20 bg-white shadow-sm border-b border-gray-200">
+            <div className="sticky top-[56px] bg-white shadow-sm border-b border-gray-200">
               <nav className="-mb-px flex gap-2" aria-label="Tabs">
                 <Link
                   to="/settings/profile"
@@ -103,16 +102,6 @@ export default function UserSettings() {
                   Profile details
                 </Link>
                 <Link
-                  to="/settings/crypto"
-                  className={`px-2 py-2 shrink-0 border-b-2 text-sm font-medium duration-200 ${
-                    location.pathname === "/settings/crypto"
-                      ? "text-sky-600 border-sky-500"
-                      : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
-                  }`}
-                >
-                  Cryptocurrency
-                </Link>
-                <Link
                   className={`px-2 py-2 shrink-0 border-b-2 text-sm font-medium duration-200 ${
                     location.pathname === "/settings/tab-2"
                       ? "text-sky-600 border-sky-500"
@@ -120,15 +109,6 @@ export default function UserSettings() {
                   }`}
                 >
                   Payment & Subscriptions
-                </Link>
-                <Link
-                  className={`px-2 py-2 shrink-0 border-b-2 text-sm font-medium duration-200 ${
-                    location.pathname === "/settings/tab-3"
-                      ? "text-sky-600 border-sky-500"
-                      : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
-                  }`}
-                >
-                  Tab 4
                 </Link>
               </nav>
             </div>
