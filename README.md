@@ -53,7 +53,7 @@ npx hardhat node
 
 ### 6(a). Migrate Smart Contracts
 ```
-npx hardhat run blockchain/backend/scripts/deploy.Cjs --network localhost
+npx hardhat run blockchain/backend/scripts/deploy.cjs --network localhost
 ```
 
 ### 6(b). Migrate Smart Contracts (Goerli Network)

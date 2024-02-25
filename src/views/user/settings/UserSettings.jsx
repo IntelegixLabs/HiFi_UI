@@ -1,11 +1,10 @@
-import { useContext, useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { Outlet, Link, useLocation } from "react-router-dom";
 
 import MarketplaceAbi from "../../../../blockchain/frontend/contractsData/Marketplace.json";
 import MarketplaceAddress from "../../../../blockchain/frontend/contractsData/Marketplace-address.json";
-import NFTAbi from "../../../../blockchain/frontend/contractsData/NFT.json";
-import NFTAddress from "../../../../blockchain/frontend/contractsData/NFT-address.json";
-// import NftContext from "../../../../blockchain/frontend/NftContext"
+//import NFTAbi from "../../../../blockchain/frontend/contractsData/NFT.json";
+//import NFTAddress from "../../../../blockchain/frontend/contractsData/NFT-address.json";
 import { ethers } from "ethers";
 
 import IMG_USER_PROFILE from "@assets/profile_pic.png";
@@ -13,8 +12,10 @@ import IMG_USER_PROFILE from "@assets/profile_pic.png";
 export default function UserSettings() {
   const location = useLocation();
 
-  // const { setAccount, setMarketplace, setNFT, setBalance, setIsLoading, account, setAccountType } = useContext(NftContext);
-  const [loading, setLoading] = useState(true);
+  const [web3Account, setWeb3Account] = useState(null);
+  const [balance, setWeb3Balance] = useState(null);
+  const [marketplace, setMarketplace] = useState({});
+  const [web3AccountType, setWeb3AccountType] = useState(false);
 
   const loadContracts = async (signer) => {
     // Get deployed copies of contracts
@@ -23,33 +24,84 @@ export default function UserSettings() {
       MarketplaceAbi.abi,
       signer
     );
-    // setMarketplace(marketplace)
-    // const fam = await marketplace.farmers(account)
-    // setAccountType(fam.name ? true : false)
-    const nft = new ethers.Contract(NFTAddress.address, NFTAbi.abi, signer);
-    // setNFT(nft)
-    setLoading(false);
+    setMarketplace(marketplace);
+    const user = await marketplace.users(web3Account);
+    setWeb3AccountType(user.user_name != null ? true : false);
   };
 
-  const web3Handler = async () => {
+  const web3Connect = async () => {
     if (!window.ethereum) {
-      alert("Install metamask extention");
+      alert("Install metamask extension");
       return;
     }
     const accounts = await window.ethereum.request({
       method: "eth_requestAccounts",
     });
-    // setAccount(accounts[0])
+    setWeb3Account(accounts[0]);
     // Get provider from Metamask
-    // const provider = new ethers.providers.JsonRpcProvider(RpcHttpUrl)
+    /*const provider = new ethers.providers.JsonRpcProvider(RpcHttpUrl)*/
     const provider = new ethers.providers.Web3Provider(window.ethereum);
-
     // Set signer
     const signer = provider.getSigner();
     const balance = await provider.getBalance(accounts[0]);
     const balances = ethers.utils.formatEther(balance);
-    // setBalance(balances)
+    setWeb3Balance(balances);
     loadContracts(signer);
+  };
+
+  const disconnectWallet = () => {
+    setWeb3Account("");
+    setWeb3AccountType(false);
+    localStorage.removeItem("web3Account");
+    if (window.ethereum && window.ethereum.isMetaMask) {
+      window.ethereum
+        .request({
+          method: "wallet_requestPermissions",
+          params: [
+            {
+              eth_accounts: {},
+            },
+          ],
+        })
+        .then((permissions) => {
+          if (
+            permissions &&
+            permissions.find(
+              (perm) =>
+                perm.parentCapability === "eth_accounts" &&
+                perm.caveats.length === 0
+            )
+          ) {
+            // User approved account disconnection
+            window.ethereum._metamask.disconnect();
+          } else {
+            // User denied account disconnection
+            console.log("Wallet not disconnected!");
+          }
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+    } else {
+      // MetaMask is not installed
+      alert("MetaMask is not installed");
+    }
+  };
+
+  const secureWeb3Account = async () => {
+    await (
+      await marketplace.create_User(
+        web3Account,
+        "Arnab Das",
+        "134556",
+        "raj713335@gmail.com",
+        "+91 9547966499",
+        "Male",
+        "20-06-1997",
+        "CGDPD1480N"
+      )
+    ).wait();
+    setWeb3AccountType(true);
   };
 
   useEffect(() => {
@@ -59,42 +111,49 @@ export default function UserSettings() {
       });
 
       window.ethereum.on("accountsChanged", async function (accounts) {
-        // setAccount(accounts[0])
-        await web3Handler();
+        setWeb3Account(accounts[0]);
+        await web3Connect();
       });
     }
   });
 
   useEffect(() => {
-    if (!!localStorage.getItem("account")) {
+    if (!!localStorage.getItem("web3Account")) {
       (async () => {
-        const account = localStorage.getItem('account');
-        // setAccount(account)
+        const web3Account = localStorage.getItem("web3Account");
+        setWeb3Account(web3Account);
         const provider = new ethers.providers.Web3Provider(window.ethereum);
         const signer = provider.getSigner();
-        // const balance = await provider.getBalance(account);
+        const balance = await provider.getBalance(web3Account);
         const balances = ethers.utils.formatEther(balance);
-        // setBalance(balances)
+        setWeb3Balance(balances);
         const marketplace = new ethers.Contract(
           MarketplaceAddress.address,
           MarketplaceAbi.abi,
           signer
         );
-        // setMarketplace(marketplace)
-        const nft = new ethers.Contract(NFTAddress.address, NFTAbi.abi, signer);
-        // const fam = await marketplace.farmers(account)
-        // setAccountType(fam.name ? true : false)
-        // setNFT(nft)
-        // setIsLoading(true)
+        setMarketplace(marketplace);
+        const user = await marketplace.users(web3Account);
+        setWeb3AccountType(user.user_name ? true : false);
+        console.log(
+          user.user_name,
+          user.user_id,
+          user.email,
+          user.phone_number,
+          user.gender,
+          user.dob,
+          user.pancard
+        );
+        console.log(web3AccountType);
       })();
     }
   }, []);
 
-  // useEffect(() => {
-  //   if (!!account) {
-  //     localStorage.setItem("account", account);
-  //   }
-  // }, [account]);
+  useEffect(() => {
+    if (!!web3Account) {
+      localStorage.setItem("web3Account", web3Account);
+    }
+  }, [web3Account]);
 
   return (
     <div className="max-w-7xl mx-auto">
@@ -120,66 +179,93 @@ export default function UserSettings() {
                       subscription is active
                     </p>
                   </div>
-                  <p className="mt-4 text-lg text-gray-600 font-bold">
-                    <i className="fa-brands fa-ethereum fa-fw"></i> 220 ETH
-                  </p>
+                  {web3Account && (
+                    <p className="mt-4 text-lg text-gray-600 font-bold">
+                      <i className="fa-brands fa-ethereum fa-fw"></i> {balance}
+                      ETH
+                    </p>
+                  )}
                 </div>
               </div>
 
               <hr className="mt-8 mb-2 border-gray-100" />
 
-              <p className="text-sm font-medium text-green-600">
-                <i className="fa-solid fa-check-circle fa-fw"></i> Wallet
-                connected
-              </p>
-              <div className="flex items-center justify-between gap-2">
-                <p className="text-xs text-gray-500 break-all">
-                  0xb794f5ea0ba39494ce839613fffba74279579268
-                </p>
-                <button className="w-8 h-8 text-gray-500 hover:text-black hover:bg-gray-100 rounded-full">
-                  <i className="fa-solid fa-copy fa-fw"></i>
-                </button>
-              </div>
+              {web3Account ? (
+                <Fragment>
+                  <div className="flex justify-between gap-2">
+                    <p className="text-sm font-medium text-green-600">
+                      <i className="fa-solid fa-check-circle fa-fw"></i> Wallet
+                      connected
+                    </p>
+                    <button
+                      className="font-semibold text-xs text-red-400 hover:text-red-600"
+                      onClick={disconnectWallet}
+                    >
+                      <i className="fa-solid fa-times fa-fw"></i> disconnect
+                    </button>
+                  </div>
+                  <div className="flex items-center justify-between gap-2">
+                    <a
+                      className="text-xs text-gray-500 hover:text-gray-700 underline hover:no-underline break-all"
+                      href={`https://goerli.etherscan.io/address/${web3Account}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {web3Account}
+                    </a>
+                    <button className="w-8 h-8 text-gray-500 hover:text-black hover:bg-gray-100 rounded-full">
+                      <i className="fa-solid fa-copy fa-fw"></i>
+                    </button>
+                  </div>
+                </Fragment>
+              ) : (
+                <Fragment>
+                  <div className="my-4 flex items-center justify-between">
+                    <div>
+                      <h2 className="text-md font-semibold">Connect wallet</h2>
+                      <p className="mt-1 text-sm text-gray-500">
+                        Connect your ethereum wallet
+                      </p>
+                    </div>
+                    <button
+                      className="py-2.5 px-4 text-sm font-semibold bg-gray-100 hover:bg-gray-200 border border-gray-200 hover:text-gray-700 rounded-md"
+                      onClick={web3Connect}
+                    >
+                      Connect
+                    </button>
+                  </div>
+                </Fragment>
+              )}
 
               <hr className="my-2 border-gray-100" />
 
-              <p className="text-sm font-medium text-green-600">
-                <i className="fa-solid fa-lock fa-fw"></i> Account secured
-              </p>
-              <p className="mt-1 text-sm text-gray-500">
-                Secured via blockchain
-              </p>
-
-              <hr className="my-4 border-gray-100" />
-
-              <div className="my-4 flex items-center justify-between">
-                <div>
-                  <h2 className="text-md font-semibold">Connect wallet</h2>
-                  <p className="mt-1 text-sm text-gray-500">
-                    Connect your ethereum wallet
+              {web3AccountType ? (
+                <Fragment>
+                  <p className="text-sm font-medium text-green-600">
+                    <i className="fa-solid fa-lock fa-fw"></i> Account secured
                   </p>
-                </div>
-                <button
-                  className="py-2.5 px-4 text-sm font-semibold bg-gray-100 hover:bg-gray-200 border border-gray-200 hover:text-gray-700 rounded-md"
-                  onClick={web3Handler}
-                >
-                  Connect
-                </button>
-              </div>
-
-              <hr className="my-4 border-gray-100" />
-
-              <div className="my-4 flex items-center justify-between">
-                <div>
-                  <h2 className="text-md font-semibold">Secure account</h2>
                   <p className="mt-1 text-sm text-gray-500">
-                    Secure your account via blockchain
+                    Secured via blockchain
                   </p>
-                </div>
-                <button className="py-2.5 px-4 text-sm font-semibold bg-gray-100 hover:bg-gray-200 border border-gray-200 hover:text-gray-700 rounded-md">
-                  Secure account
-                </button>
-              </div>
+                </Fragment>
+              ) : (
+                <Fragment>
+                  <div className="my-4 flex items-center justify-between">
+                    <div>
+                      <h2 className="text-md font-semibold">Secure account</h2>
+                      <p className="mt-1 text-sm text-gray-500">
+                        Secure your account via blockchain
+                      </p>
+                    </div>
+                    <button
+                      className="py-2.5 px-4 text-sm font-semibold bg-gray-100 hover:bg-gray-200 border border-gray-200 hover:text-gray-700 rounded-md"
+                      onClick={secureWeb3Account}
+                    >
+                      Secure account
+                    </button>
+                  </div>
+                </Fragment>
+              )}
             </div>
           </div>
           <div className="w-4/6">
