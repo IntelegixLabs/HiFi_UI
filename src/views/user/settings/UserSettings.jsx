@@ -180,7 +180,7 @@ export default function UserSettings() {
           </p>
           <div className="mt-6 flex gap-2">
             <button
-              className="w-1/2 py-2 text-gray-600 font-semibold hover:bg-gray-100 border border-gray-300 duration-200 rounded-md"
+              className="w-1/2 py-2 text-gray-500 hover:text-black font-semibold hover:bg-gray-100 border border-gray-300 duration-200 rounded-md"
               onClick={() => setShowDisconnectWalletConfirmModal(false)}
             >
               Cancel
