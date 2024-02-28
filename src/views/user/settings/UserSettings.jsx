@@ -46,7 +46,7 @@ export default function UserSettings() {
     // Set signer
     const signer = provider.getSigner();
     const balance = await provider.getBalance(accounts[0]);
-    const balances = ethers.utils.formatEther(balance);
+    const balances = parseFloat(ethers.utils.formatEther(balance)).toFixed(2);
     setWeb3Balance(balances);
     loadContracts(signer);
   };
@@ -134,7 +134,7 @@ export default function UserSettings() {
         const provider = new ethers.providers.Web3Provider(window.ethereum);
         const signer = provider.getSigner();
         const balance = await provider.getBalance(web3Account);
-        const balances = ethers.utils.formatEther(balance);
+        const balances = parseFloat(ethers.utils.formatEther(balance)).toFixed(2);
         setWeb3Balance(balances);
         const marketplace = new ethers.Contract(
           MarketplaceAddress.address,
@@ -220,7 +220,7 @@ export default function UserSettings() {
                     {web3Account && (
                       <p className="mt-4 text-lg text-gray-600 font-bold">
                         <i className="fa-brands fa-ethereum fa-fw"></i>{" "}
-                        {balance}
+                        {balance}{" "}
                         ETH
                       </p>
                     )}
