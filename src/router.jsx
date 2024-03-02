@@ -8,6 +8,8 @@ import UserSettingsProfile from "@views/user/settings/UserSettingsProfile.jsx";
 import UserSettingsCrypto from "@views/user/settings/UserSettingsCrypto.jsx";
 import Error404 from "@views/Error404.jsx";
 
+import Payments from "@views/user/payments.jsx";
+
 
 const router = createBrowserRouter([
   {
@@ -24,6 +26,11 @@ const router = createBrowserRouter([
         path: "/stocks",
         name: "UserStocks",
         element: <UserStocks />,
+      },
+      {
+        path: "/payments",
+        name: "Payments",
+        element: <Payments />,
       },
       {
         path: "/settings",
