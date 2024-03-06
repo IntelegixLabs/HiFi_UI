@@ -5,7 +5,7 @@ import UserHome from "@views/user/UserHome.jsx";
 import UserStocks from "@views/user/UserStocks.jsx";
 import UserSettings from "@views/user/settings/UserSettings.jsx";
 import UserSettingsProfile from "@views/user/settings/UserSettingsProfile.jsx";
-import UserSettingsCrypto from "@views/user/settings/UserSettingsCrypto.jsx";
+import UserSettingsPaymentSubscriptions from "@views/user/settings/UserSettingsPaymentSubscriptions.jsx";
 import Error404 from "@views/Error404.jsx";
 
 
@@ -41,9 +41,9 @@ const router = createBrowserRouter([
             element: <UserSettingsProfile />,
           },
           {
-            path: "/settings/crypto",
-            name: "UserSettingsCrypto",
-            element: <UserSettingsCrypto />,
+            path: "/settings/payment-subscriptions",
+            name: "UserSettingsPaymentSubscriptions",
+            element: <UserSettingsPaymentSubscriptions />,
           },
         ],
       },
