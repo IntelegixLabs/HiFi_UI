@@ -132,10 +132,6 @@ export default function UserSettings() {
     }
   }, []);
 
-  const handleDisconnectWalletConfirm = async () => {
-    setShowDisconnectWalletConfirmModal(true);
-  };
-
   useEffect(() => {
     if (!!localStorage.getItem("web3Account")) {
       (async () => {
@@ -268,7 +264,9 @@ export default function UserSettings() {
                       </p>
                       <button
                         className="font-semibold text-xs text-red-400 hover:text-red-600"
-                        onClick={handleDisconnectWalletConfirm}
+                        onClick={() =>
+                          setShowDisconnectWalletConfirmModal(true)
+                        }
                       >
                         <i className="fa-solid fa-times fa-fw"></i> disconnect
                       </button>

@@ -21,7 +21,8 @@ export default defineConfig({
       "@views": fileURLToPath(new URL("./src/views", import.meta.url)),
       "@contexts": fileURLToPath(new URL("./src/contexts", import.meta.url)),
       "@api": fileURLToPath(new URL("./src/api", import.meta.url)),
-      "@sample": fileURLToPath(new URL("./src/sample", import.meta.url))
+      "@routes": fileURLToPath(new URL("./src/routes", import.meta.url)),
+      "@sample": fileURLToPath(new URL("./src/sample", import.meta.url)),
     },
   },
     esbuild: {
