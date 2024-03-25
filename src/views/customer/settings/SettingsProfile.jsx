@@ -3,7 +3,7 @@ import { useEffect, useState, Fragment, useContext } from "react";
 import { Api } from "@api/Api.jsx";
 
 import { UserProfileContext } from "@contexts/UserProfileContext.jsx";
-import PANCard from "@/views/customer/settings/PANCard.jsx";
+import PANCard from "@/views/customer/settings/profile-details/PANCard.jsx";
 
 import IMG_USER_PROFILE from "@assets/profile_pic.png";
 

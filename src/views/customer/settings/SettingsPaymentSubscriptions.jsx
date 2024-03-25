@@ -2,7 +2,7 @@ import { Fragment, useState } from "react";
 import { Link } from "react-router-dom";
 
 import { Api } from "@api/Api.jsx";
-import INRPricing from "@views/customer/settings/INRPricing.jsx";
+import INRPricing from "@views/customer/settings/payment-subscriptions/INRPricing.jsx";
 
 export default function SettingsPaymentSubscriptions() {
   return (
