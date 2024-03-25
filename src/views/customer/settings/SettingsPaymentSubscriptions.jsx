@@ -23,39 +23,39 @@ export default function SettingsPaymentSubscriptions() {
       <INRPricing />
 
       <h4 className="mt-10 font-semibold text-lg">Purchase history</h4>
-      <table class="mt-6 w-full text-sm text-left text-gray-500">
-        <thead class="text-sm text-gray-600 border-b-2 uppercase bg-gray-50">
+      <table className="mt-6 w-full text-sm text-left text-gray-500">
+        <thead className="text-sm text-gray-600 border-b-2 uppercase bg-gray-50">
           <tr>
-            <th scope="col" class="px-6 py-3">
+            <th scope="col" className="px-6 py-3">
               Transaction Id
             </th>
-            <th scope="col" class="px-6 py-3">
+            <th scope="col" className="px-6 py-3">
               Date
             </th>
-            <th scope="col" class="px-6 py-3">
+            <th scope="col" className="px-6 py-3">
               Type
             </th>
-            <th scope="col" class="px-6 py-3">
+            <th scope="col" className="px-6 py-3">
               Price
             </th>
           </tr>
         </thead>
         <tbody>
-          <tr class="border-b">
-            <th scope="row" class="px-6 py-4 font-mono">
+          <tr className="border-b">
+            <th scope="row" className="px-6 py-4 font-mono">
               werit9rw4875834i2ejfhjdjsf834
             </th>
-            <td class="px-6 py-4">38th March 2024</td>
-            <td class="px-6 py-4">Yearly</td>
-            <td class="px-6 py-4">INR 499</td>
+            <td className="px-6 py-4">38th March 2024</td>
+            <td className="px-6 py-4">Yearly</td>
+            <td className="px-6 py-4">INR 499</td>
           </tr>
-          <tr class="border-b">
-            <th scope="row" class="px-6 py-4 font-mono">
+          <tr className="border-b">
+            <th scope="row" className="px-6 py-4 font-mono">
               werit9rw4875834i2ejfhjdjsf834
             </th>
-            <td class="px-6 py-4">38th March 2024</td>
-            <td class="px-6 py-4">Yearly</td>
-            <td class="px-6 py-4">INR 499</td>
+            <td className="px-6 py-4">38th March 2024</td>
+            <td className="px-6 py-4">Yearly</td>
+            <td className="px-6 py-4">INR 499</td>
           </tr>
         </tbody>
       </table>

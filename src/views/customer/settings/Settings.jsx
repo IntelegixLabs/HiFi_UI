@@ -1,7 +1,9 @@
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useContext, useEffect, useState } from "react";
 import { Outlet, Link, useLocation } from "react-router-dom";
 
 import Modal from "@/components/common/Modal.jsx";
+import { UserProfileContext } from "@contexts/UserProfileContext.jsx";
+
 import MarketplaceAbi from "../../../../blockchain/frontend/contractsData/Marketplace.json";
 import MarketplaceAddress from "../../../../blockchain/frontend/contractsData/Marketplace-address.json";
 //import NFTAbi from "../../../../blockchain/frontend/contractsData/NFT.json";
@@ -14,15 +16,11 @@ import IMG_USER_PROFILE from "@assets/profile_pic.png";
 
 export default function UserSettings() {
   const location = useLocation();
+  const { userId, firstName, lastName, email, phoneNumber } =
+    useContext(UserProfileContext);
 
   const [showDeleteConfirmModal, setShowDisconnectWalletConfirmModal] =
     useState(false);
-
-  // User Profile
-  const [username, setUsername] = useState("");
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [email, setEmail] = useState("");
 
   // User Web3 Profile
   const [web3Account, setWeb3Account] = useState(null);

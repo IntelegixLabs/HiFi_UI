@@ -93,10 +93,10 @@ export default function INRPricing() {
       id: packageId,
     };
 
-    alert(packageId);
-    // Api.post("/payments/stripe/create_payment_intent", payload).then((response) => {
-    //   alert('Purchase Complete');
-    // });
+    // alert(packageId);
+    Api.post("/payments/stripe/create_payment_intent", payload).then((response) => {
+      alert('Purchase Complete');
+    });
   };
 
   return <Fragment>{getPricing()}</Fragment>;
