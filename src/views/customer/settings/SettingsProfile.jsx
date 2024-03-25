@@ -24,8 +24,8 @@ export default function UserSettingsProfile() {
     useState(false);
 
   useEffect(() => {
-    async function fetchInitialData() {
-      await Api.get("user_profile/get_user_data")
+     function fetchInitialData() {
+      Api.get("/profile/1")
         .then((response) => {
           setFirstName(response.data.first_name);
           setLastName(response.data.last_name);
@@ -35,7 +35,7 @@ export default function UserSettingsProfile() {
           console.log(error);
         });
 
-      await Api.get("/userProfile/get_profile")
+      Api.get("/profile")
         .then((response) => {
           setPhoneNumber(response.data.phoneNumber);
           setUserId(response.data.userId);

@@ -12,14 +12,20 @@ export default function CustomerLayout() {
   const [customer, setCustomer] = useState({});
 
   useEffect(() => {
-    async function initCustomerData() {
-      await Api.get('/profile').then(response => {
-        setCustomerExist(true);
-        setCustomer(response.data);
-      }).catch(error => {
-        setCustomerExist(false);
-        navigate('/onboarding');
-      });
+    function initCustomerData() {
+      setTimeout(() => {
+        Api.get("/status/health").then((res) => {
+          Api.get("/profile")
+            .then((response) => {
+              setCustomerExist(true);
+              setCustomer(response.data);
+            })
+            .catch((error) => {
+              setCustomerExist(false);
+              navigate("/onboarding");
+            });
+        });
+      }, 1000);
     }
     initCustomerData();
   }, []);

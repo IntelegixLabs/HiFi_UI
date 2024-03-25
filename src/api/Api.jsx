@@ -29,6 +29,7 @@ Api.interceptors.request.use(
     if (keycloakConfig && keycloakConfig.token) {
       config.headers["Authorization"] = `Bearer ${keycloakConfig.token}`;
     }
+
     return config;
   },
   (error) => {

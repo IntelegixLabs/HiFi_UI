@@ -174,7 +174,7 @@ export default function UserSettings() {
 
   useEffect(() => {
     async function fetchData() {
-      await Api.get("/user_profile/get_user_data")
+      await Api.get("/profile")
         .then((response) => {
           setUsername(response.data.username);
           setEmail(response.data.email);

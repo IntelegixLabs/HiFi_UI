@@ -1,5 +1,6 @@
 import { Fragment, useState } from "react";
 import { Api } from "@api/Api.jsx";
+
 export default function Onboarding() {
   const [phoneNumber, setPhoneNumber] = useState(0);
   const [gender, setGender] = useState("");
