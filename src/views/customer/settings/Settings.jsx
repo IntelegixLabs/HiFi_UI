@@ -1,19 +1,28 @@
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useContext, useEffect, useState } from "react";
 import { Outlet, Link, useLocation } from "react-router-dom";
 
 import Modal from "@/components/common/Modal.jsx";
+import { UserProfileContext } from "@contexts/UserProfileContext.jsx";
+
 import MarketplaceAbi from "../../../../blockchain/frontend/contractsData/Marketplace.json";
 import MarketplaceAddress from "../../../../blockchain/frontend/contractsData/Marketplace-address.json";
 //import NFTAbi from "../../../../blockchain/frontend/contractsData/NFT.json";
 //import NFTAddress from "../../../../blockchain/frontend/contractsData/NFT-address.json";
 import { ethers } from "ethers";
 
+import { Api } from "@api/Api.jsx";
+
 import IMG_USER_PROFILE from "@assets/profile_pic.png";
 
 export default function UserSettings() {
   const location = useLocation();
+  const { userId, firstName, lastName, email, phoneNumber } =
+    useContext(UserProfileContext);
 
-  const [showDeleteConfirmModal, setShowDisconnectWalletConfirmModal] = useState(false);
+  const [showDeleteConfirmModal, setShowDisconnectWalletConfirmModal] =
+    useState(false);
+
+  // User Web3 Profile
   const [web3Account, setWeb3Account] = useState(null);
   const [balance, setWeb3Balance] = useState(null);
   const [marketplace, setMarketplace] = useState({});
@@ -119,12 +128,7 @@ export default function UserSettings() {
         await web3Connect();
       });
     }
-  });
-
-
-  const handleDisconnectWalletConfirm = async () => {
-    setShowDisconnectWalletConfirmModal(true);
-  };
+  }, []);
 
   useEffect(() => {
     if (!!localStorage.getItem("web3Account")) {
@@ -134,7 +138,9 @@ export default function UserSettings() {
         const provider = new ethers.providers.Web3Provider(window.ethereum);
         const signer = provider.getSigner();
         const balance = await provider.getBalance(web3Account);
-        const balances = parseFloat(ethers.utils.formatEther(balance)).toFixed(2);
+        const balances = parseFloat(ethers.utils.formatEther(balance)).toFixed(
+          2
+        );
         setWeb3Balance(balances);
         const marketplace = new ethers.Contract(
           MarketplaceAddress.address,
@@ -164,6 +170,23 @@ export default function UserSettings() {
     }
   }, [web3Account]);
 
+  useEffect(() => {
+    async function fetchData() {
+      await Api.get("/profile")
+        .then((response) => {
+          setUsername(response.data.username);
+          setEmail(response.data.email);
+          setFirstName(response.data.first_name);
+          setLastName(response.data.last_name);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    }
+
+    fetchData();
+  }, []);
+
   return (
     <Fragment>
       <Modal
@@ -175,7 +198,7 @@ export default function UserSettings() {
           <h6 className="inter text-lg font-semibold">
             Confirm disconnect wallet?
           </h6>
-          <p className="text-sm text-gray-700">
+          <p className="mt-2 text-sm text-gray-500">
             You can connect your wallet again by clicking the connect button.
           </p>
           <div className="mt-6 flex gap-2">
@@ -210,7 +233,9 @@ export default function UserSettings() {
                     />
                   </div>
                   <div className="w-4/6">
-                    <h1 className="font-bold text-xl">Sayan Sinha</h1>
+                    <h1 className="font-bold text-xl">
+                      {firstName} {lastName}
+                    </h1>
                     <div className="mt-1 text-sm flex justify-between text-gray-700 bg-gradient-to-r from-yellow-50 via-white to-yellow-50">
                       <p className="text-xs text-yellow-600">
                         <i className="fa-solid fa-check-circle fa-fw"></i> Your
@@ -220,8 +245,7 @@ export default function UserSettings() {
                     {web3Account && (
                       <p className="mt-4 text-lg text-gray-600 font-bold">
                         <i className="fa-brands fa-ethereum fa-fw"></i>{" "}
-                        {balance}{" "}
-                        ETH
+                        {balance} ETH
                       </p>
                     )}
                   </div>
@@ -238,7 +262,9 @@ export default function UserSettings() {
                       </p>
                       <button
                         className="font-semibold text-xs text-red-400 hover:text-red-600"
-                        onClick={handleDisconnectWalletConfirm}
+                        onClick={() =>
+                          setShowDisconnectWalletConfirmModal(true)
+                        }
                       >
                         <i className="fa-solid fa-times fa-fw"></i> disconnect
                       </button>
@@ -325,8 +351,9 @@ export default function UserSettings() {
                     Profile details
                   </Link>
                   <Link
+                    to="/settings/payment-subscriptions"
                     className={`px-2 py-2 shrink-0 border-b-2 text-sm font-medium duration-200 ${
-                      location.pathname === "/settings/tab-2"
+                      location.pathname === "/settings/payment-subscriptions"
                         ? "text-sky-600 border-sky-500"
                         : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
                     }`}

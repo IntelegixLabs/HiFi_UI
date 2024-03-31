@@ -1581,9 +1581,11 @@ export default function UserStocks() {
                     {NewsSentiments.feed.map((newsFeed, index) => {
                       return (
                         <div
-                          className="p-4 my-4 w-full border shadow rounded-lg"
+                          className="p-4 my-4 w-full border flex gap-4 shadow rounded-lg"
                           key={index}
                         >
+                            <img className="w-2/6 rounded-md" src={newsFeed.banner_image} alt="" />
+                          <div className="w-4/6">
                           <a
                             href={newsFeed.url}
                             target="_blank"
@@ -1631,6 +1633,7 @@ export default function UserStocks() {
                                 {newsFeed.overall_sentiment_label}
                               </p>
                             </div>
+                          </div>
                           </div>
                         </div>
                       );
