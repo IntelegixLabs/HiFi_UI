@@ -1,6 +1,5 @@
 import { useContext, useEffect, useState, useRef, Fragment } from "react";
 import { AppConfigContext } from "@contexts/AppConfigContext.jsx";
-import ReadMoreTruncate from "@components/common/ReadMoreTruncate.jsx";
 
 import { ColorType, createChart } from "lightweight-charts";
 
@@ -14,20 +13,17 @@ import { STOCK_SYMBOLS } from "@sample/STOCK_SYMBOLS.jsx";
 import { transform } from "@/GeneralHelpers.jsx";
 import { CircularProgressbar, buildStyles } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
-
+import StockDashboard from '@views/customer/stocks/StockDashboard.jsx';
 import { Api } from "@api/Api.jsx";
 
-export default function UserStocks() {
+export default function Stocks() {
   const { APP_ENVIRONMENT } = useContext(AppConfigContext);
 
   const chartContainer = useRef();
 
   const [isStockSearchPerformed, setIsStockSearchPerformed] = useState(false);
   const [StockSymbol, setStockSymbol] = useState("");
-  const [StockOverview, setStockOverview] = useState({});
   const [NewsSentiments, setNewsSentiments] = useState({});
-  const [timeFrom, setTimeFrom] = useState(new Date());
-  const [timeTo, setTimeTo] = useState(new Date());
   const [tab, setTab] = useState("dashboard");
 
   // Loaders Indicators
@@ -49,7 +45,7 @@ export default function UserStocks() {
     } else {
       // Here goes the sample data
       // drawChart(TIME_SERIES_MONTHLY);
-      getFundamentals(STOCK_FUNDAMENTALS);
+      // getFundamentals(STOCK_FUNDAMENTALS);
       getNewsSentiments(NEWS_AND_SENTIMENTS);
 
       setTimeout(() => {
@@ -85,10 +81,6 @@ export default function UserStocks() {
   //     chart.remove();
   //   };
   // };
-
-  const getFundamentals = (fundamentals_data) => {
-    setStockOverview(fundamentals_data);
-  };
 
   const getNewsSentiments = (news_data) => {
     setNewsSentiments(news_data);
@@ -237,72 +229,7 @@ export default function UserStocks() {
               </div>
             </div>
 
-            {tab === "dashboard" && (
-              <div className="my-10 flex gap-2">
-                <div className="w-1/2 p-4 border rounded-lg">
-                  <h4 className="font-semibold text-2xl">Profile</h4>
-                  <div className="my-4 font-mono">
-                    <ReadMoreTruncate
-                      text={StockOverview.Description}
-                      maxLength={180}
-                    />
-                  </div>
-
-                  <h6 className="mt-10 font-semibold text-lg">Key Stats</h6>
-                  <div className="my-4 flex gap-4">
-                    <div className="w-1/2">
-                      <div className="p-2 font-mono bg-gray-50">
-                        <p className="mb-4 text-gray-500">Growth (FY)</p>
-                        <div className="my-2 text-sm flex items-center justify-between">
-                          <p>Revenue</p>
-                          <p>{StockOverview.RevenueTTM}</p>
-                        </div>
-                        <hr className="border-gray-300" />
-                        <div className="my-2 text-sm flex items-center justify-between">
-                          <p>Revenue Per Share</p>
-                          <p>{StockOverview.RevenuePerShareTTM} %</p>
-                        </div>
-                        <hr className="border-gray-300" />
-                        <div className="my-2 text-sm flex items-center justify-between">
-                          <p>Revenue Per Share</p>
-                          <p>{StockOverview.RevenuePerShareTTM} %</p>
-                        </div>
-                        <hr className="border-gray-300" />
-                        <div className="my-2 text-sm flex items-center justify-between">
-                          <p>EPS</p>
-                          <p>{StockOverview.EPS} %</p>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="w-1/2">
-                      <div className="p-2 font-mono bg-gray-50">
-                        <p className="mb-4 text-gray-500">Profitability (FY)</p>
-                        <div className="my-2 text-sm flex items-center justify-between">
-                          <p>Operating Margin</p>
-                          <p>{StockOverview.OperatingMarginTTM} %</p>
-                        </div>
-                        <hr className="border-gray-300" />
-                        <div className="my-2 text-sm flex items-center justify-between">
-                          <p>Profit Margin</p>
-                          <p>{StockOverview.ProfitMargin}</p>
-                        </div>
-                        <hr className="border-gray-300" />
-                        <div className="my-2 text-sm flex items-center justify-between">
-                          <p>Return on Equity</p>
-                          <p>{StockOverview.ReturnOnEquityTTM} %</p>
-                        </div>
-                        <hr className="border-gray-300" />
-                        <div className="my-2 text-sm flex items-center justify-between">
-                          <p>Return on Assets</p>
-                          <p>{StockOverview.ReturnOnAssetsTTM} %</p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div className="w-1/2"></div>
-              </div>
-            )}
+            {tab === "dashboard" && <StockDashboard /> }
 
             {tab === 'financials' && (
               <Fragment>
@@ -313,7 +240,7 @@ export default function UserStocks() {
         )}
 
         {/* Fundamentals */}
-        <div className={`mt-4 ${tab === "fundamental" ? "" : "hidden"} `}>
+        {/* <div className={`mt-4 ${tab === "fundamental" ? "" : "hidden"} `}>
           {!StockSymbol ? (
             <div className="w-full mt-20 mb-10 text-center">
               <h4 className="text-xl font-bold text-gray-600">
@@ -590,7 +517,7 @@ export default function UserStocks() {
               )}
             </div>
           )}
-        </div>
+        </div> */}
 
         {/* New Insights */}
         <div className={`mt-4 ${tab === "news_insights" ? "" : "hidden"} `}>
