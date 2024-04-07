@@ -1,25 +1,37 @@
 import { useContext, useEffect, useState, useRef, Fragment } from "react";
 import { AppConfigContext } from "@contexts/AppConfigContext.jsx";
 
-import { ColorType, createChart } from "lightweight-charts";
-
 // Sample data ================================================================
-import { TIME_SERIES_MONTHLY } from "@sample/STOCK_FUNCTION.jsx";
-import { STOCK_FUNDAMENTALS } from "@sample/STOCK_FUNDAMENTALS.jsx";
-import { NEWS_AND_SENTIMENTS } from "@sample/NEWS_INSIGHTS.jsx";
+// Samples for Stocks Fundamental Data
+import { OVERVIEW } from "@sample/fundamentals/OVERVIEW.jsx";
+import { INCOME_STATEMENT } from "@sample/fundamentals/INCOME_STATEMENT.jsx";
+import { CASH_FLOW } from "@sample/fundamentals/CASH_FLOW.jsx";
+import { BALANCE_SHEET } from "@sample/fundamentals/BALANCE_SHEET.jsx";
+import { EARNINGS } from "@sample/fundamentals/EARNINGS.jsx";
+
+// Samples for Stocks Core Data
+import { TIME_SERIES_INTRADAY } from "@sample/core/TIME_SERIES_INTRADAY.jsx";
+import { TIME_SERIES_DAILY } from "@sample/core/TIME_SERIES_DAILY.jsx";
+import { TIME_SERIES_WEEKLY } from "@sample/core/TIME_SERIES_WEEKLY.jsx";
+import { TIME_SERIES_MONTHLY } from "@sample/core/TIME_SERIES_MONTHLY.jsx";
+
+// Other Sample data
+import { NEWS_AND_SENTIMENTS } from "@sample/NEWS_AND_SENTIMENTS.jsx";
 import { STOCK_SYMBOLS } from "@sample/STOCK_SYMBOLS.jsx";
 // ============================================================================
 
-import { transform } from "@/GeneralHelpers.jsx";
 import { CircularProgressbar, buildStyles } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
-import StockDashboard from '@views/customer/stocks/StockDashboard.jsx';
+
+import StockDashboard from "@views/customer/stocks/StockDashboard.jsx";
+import StockFinancials from "@views/customer/stocks/StockFinancials.jsx";
+import StockHome from "@views/customer/stocks/StockHome.jsx";
+import { autoFormatCurrency } from "@/GeneralHelpers.jsx";
+
 import { Api } from "@api/Api.jsx";
 
 export default function Stocks() {
   const { APP_ENVIRONMENT } = useContext(AppConfigContext);
-
-  const chartContainer = useRef();
 
   const [isStockSearchPerformed, setIsStockSearchPerformed] = useState(false);
   const [StockSymbol, setStockSymbol] = useState("");
@@ -28,59 +40,162 @@ export default function Stocks() {
 
   // Loaders Indicators
   const [isGraphLoading, setIsGraphLoading] = useState(false);
-  const [isStockOverviewLoading, setIsStockOverviewLoading] = useState(false);
   const [isNewsSentimentsLoading, setIsNewsSentimentsLoading] = useState(false);
 
-  const handleSelectStock = (event) => {
+  // Stocks Core
+  const [TimeSeriesIntraday, setTimeSeriesIntraday] = useState({});
+  const [TimeSeriesDaily, setTimeSeriesDaily] = useState({});
+  const [TimeSeriesWeekly, setTimeSeriesWeekly] = useState({});
+  const [TimeSeriesMonthly, setTimeSeriesMonthly] = useState({});
+
+  // Stocks Fundamentals
+  const [Overview, setOverview] = useState({});
+  const [IncomeStatement, setIncomeStatement] = useState({});
+  const [CashFlow, setCashFlow] = useState({});
+  const [BalanceSheet, setBalanceSheet] = useState({});
+  const [Earnings, setEarnings] = useState({});
+
+  function handleSelectStock(event) {
     let stockSymbol = event.target.value;
     setStockSymbol(stockSymbol);
 
-    setIsStockSearchPerformed((isStockSearchPerformed) => true);
-    setIsGraphLoading((isGraphLoading) => true);
-    setIsStockOverviewLoading((isStockOverviewLoading) => true);
-    setIsNewsSentimentsLoading((isNewsSentimentsLoading) => true);
+    setIsStockSearchPerformed(true);
+    // Here goes the sample data
+    // drawChart(TIME_SERIES_MONTHLY);
+    // getFundamentals(STOCK_FUNDAMENTALS);
+    getNewsSentiments(NEWS_AND_SENTIMENTS);
+    // setIsGraphLoading((isGraphLoading) => false);
+    // setIsStockOverviewLoading((isStockOverviewLoading) => false);
+    // setIsNewsSentimentsLoading((isNewsSentimentsLoading) => false);
+    loadCoreStockData();
+    loadStockFundamentalData();
+  }
 
+  function loadCoreStockData() {
+    if (APP_ENVIRONMENT === "production") {
+      let newTimeSeriesIntraday = {};
+      let newTimeSeriesDaily = {};
+      let newTimeSeriesWeekly = {};
+      let newTimeSeriesMonthly = {};
+
+      Api.post(
+        `/core_stocks/TIME_SERIES_INTRADAY/query?function=TIME_SERIES_INTRADAY&symbol=${StockSymbol}&interval=1min&outputsize=full&datatype=json`
+      )
+        .then((response) => {
+          newTimeSeriesIntraday = response.data;
+        })
+        .catch((error) => console.log(error));
+
+      Api.post(
+        `/core_stocks/TIME_SERIES_DAILY/query?function=TIME_SERIES_DAILY&symbol=${StockSymbol}`
+      )
+        .then((response) => {
+          newTimeSeriesDaily = response.data;
+        })
+        .catch((error) => console.log(error));
+
+      Api.post(
+        `/core_stocks/TIME_SERIES_WEEKLY/query?function=TIME_SERIES_WEEKLY&symbol=${StockSymbol}`
+      )
+        .then((response) => {
+          newTimeSeriesWeekly = response.data;
+        })
+        .catch((error) => console.log(error));
+
+      Api.post(
+        `/core_stocks/TIME_SERIES_MONTHLY/query?function=TIME_SERIES_MONTHLY&symbol=${StockSymbol}`
+      )
+        .then((response) => {
+          newTimeSeriesMonthly = response.data;
+        })
+        .catch((error) => console.log(error));
+
+      setTimeSeriesIntraday(newTimeSeriesIntraday);
+      setTimeSeriesDaily(newTimeSeriesDaily);
+      setTimeSeriesWeekly(newTimeSeriesWeekly);
+      setTimeSeriesMonthly(newTimeSeriesMonthly);
+    } else {
+      setTimeSeriesIntraday(TIME_SERIES_INTRADAY);
+      setTimeSeriesDaily(TIME_SERIES_DAILY);
+      setTimeSeriesWeekly(TIME_SERIES_WEEKLY);
+      setTimeSeriesMonthly(TIME_SERIES_MONTHLY);
+    }
+  }
+
+  function loadStockFundamentalData() {
     if (APP_ENVIRONMENT === "production") {
       // Here goes the API
+      let newOverview = {};
+      let newIncomeStatement = {};
+      let newCashFlow = {};
+      let newBalanceSheet = {};
+      let newEarnings = {};
+
+      Api.post(
+        `/fundamental_data/OVERVIEW/query?function=OVERVIEW&symbol=${StockSymbol}`
+      )
+        .then((response) => {
+          newOverview = response.data;
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+
+      Api.post(
+        `/fundamental_data/INCOME_STATEMENT/query?function=INCOME_STATEMENT&symbol=${StockSymbol}`
+      )
+        .then((response) => {
+          newIncomeStatement = response.data;
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+
+      Api.post(
+        `/fundamental_data/CASH_FLOW/query?function=CASH_FLOW&symbol=${StockSymbol}`
+      )
+        .then((response) => {
+          newCashFlow = response.data;
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+
+      Api.post(
+        `/fundamental_data/BALANCE_SHEET/query?function=BALANCE_SHEET&symbol=${StockSymbol}`
+      )
+        .then((response) => {
+          newBalanceSheet = response.data;
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+
+      Api.post(
+        `/fundamental_data/EARNINGS/query?function=EARNINGS&symbol=${StockSymbol}`
+      )
+        .then((response) => {
+          newEarnings = response.data;
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+
+      setOverview(newOverview);
+      setIncomeStatement(newIncomeStatement);
+      setCashFlow(newCashFlow);
+      setBalanceSheet(newBalanceSheet);
+      setEarnings(newEarnings);
+      setIsStockSearchPerformed(true);
     } else {
-      // Here goes the sample data
-      // drawChart(TIME_SERIES_MONTHLY);
-      // getFundamentals(STOCK_FUNDAMENTALS);
-      getNewsSentiments(NEWS_AND_SENTIMENTS);
-
-      setTimeout(() => {
-        setIsGraphLoading((isGraphLoading) => false);
-        setIsStockOverviewLoading((isStockOverviewLoading) => false);
-        setIsNewsSentimentsLoading((isNewsSentimentsLoading) => false);
-      }, 3000);
+      setOverview(OVERVIEW);
+      setIncomeStatement(INCOME_STATEMENT);
+      setCashFlow(CASH_FLOW);
+      setBalanceSheet(BALANCE_SHEET);
+      setEarnings(EARNINGS);
+      setIsStockSearchPerformed(true);
     }
-  };
-
-  // const drawChart = (plotData) => {
-  //   let initialData = transform(plotData);
-
-  //   const chart = createChart(chartContainer.current, {
-  //     layout: {
-  //       background: { type: ColorType.Solid, color: "white" },
-  //     },
-  //     width: chartContainer.current.clientWidth,
-  //     height: 240,
-  //   });
-
-  //   const candlestickSeries = chart.addCandlestickSeries({
-  //     upColor: "#26a69a",
-  //     downColor: "#ef5350",
-  //     borderVisible: false,
-  //     wickUpColor: "#26a69a",
-  //     wickDownColor: "#ef5350",
-  //   });
-
-  //   candlestickSeries.setData(initialData.monthly_time_series);
-
-  //   return () => {
-  //     chart.remove();
-  //   };
-  // };
+  }
 
   const getNewsSentiments = (news_data) => {
     setNewsSentiments(news_data);
@@ -170,21 +285,17 @@ export default function Stocks() {
           </select>
         </div>
 
-        {!isStockSearchPerformed && (
-          <Fragment>
-            <h1>This section will show a stock info</h1>
-          </Fragment>
-        )}
+        {!isStockSearchPerformed && <StockHome />}
 
         {isStockSearchPerformed && (
           <Fragment>
             <div className="flex items-center">
-              <h4 className="w-1/4 font-bold text-4xl">{StockSymbol}</h4>
+              <h4 className="w-2/6 font-bold text-4xl">{StockSymbol}</h4>
 
-              <nav className="w-2/4 -mb-px flex space-x-2" aria-label="Tabs">
+              <nav className="w-2/6 -mb-px flex space-x-2" aria-label="Tabs">
                 <button
                   onClick={() => setTab("dashboard")}
-                  className={`w-1/4 px-2 py-2 shrink-0 border-b-2 text-sm font-medium duration-200 ${
+                  className={`w-1/3 px-2 py-2 shrink-0 border-b-2 text-sm font-medium duration-200 ${
                     tab === "dashboard"
                       ? "text-sky-600 border-sky-500"
                       : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
@@ -194,7 +305,7 @@ export default function Stocks() {
                 </button>
                 <button
                   onClick={() => setTab("financials")}
-                  className={`w-1/4 px-2 py-2 shrink-0 border-b-2 text-sm font-medium duration-200 ${
+                  className={`w-1/3 px-2 py-2 shrink-0 border-b-2 text-sm font-medium duration-200 ${
                     tab === "financials"
                       ? "text-sky-600 border-sky-500"
                       : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
@@ -203,18 +314,8 @@ export default function Stocks() {
                   Financials
                 </button>
                 <button
-                  onClick={() => setTab("fundamental")}
-                  className={`w-1/4 px-2 py-2 shrink-0 border-b-2 text-sm font-medium duration-200 ${
-                    tab === "fundamental"
-                      ? "text-sky-600 border-sky-500"
-                      : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
-                  }`}
-                >
-                  Fundamental
-                </button>
-                <button
                   onClick={() => setTab("news_insights")}
-                  className={`w-1/4 px-2 py-2 shrink-0 border-b-2 text-sm font-medium duration-200 ${
+                  className={`w-1/3 px-2 py-2 shrink-0 border-b-2 text-sm font-medium duration-200 ${
                     tab === "news_insights"
                       ? "text-sky-600 border-sky-500"
                       : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
@@ -224,300 +325,34 @@ export default function Stocks() {
                 </button>
               </nav>
 
-              <div className="w-1/4">
-                <p className="w-full text-right">$ 1.46 T, -1.01%</p>
+              <div className="w-2/6">
+                <p className="w-full text-right">
+                  {Overview.Currency}{" "}
+                  {autoFormatCurrency(Overview.MarketCapitalization)}, -1.01%
+                </p>
               </div>
             </div>
 
-            {tab === "dashboard" && <StockDashboard /> }
+            {tab === "dashboard" && (
+              <StockDashboard
+                Overview={Overview}
+                IncomeStatement={IncomeStatement}
+                CashFlow={CashFlow}
+                BalanceSheet={BalanceSheet}
+                Earnings={Earnings}
+              />
+            )}
 
-            {tab === 'financials' && (
-              <Fragment>
-                <h1>Financials</h1>
-              </Fragment>
+            {tab === "financials" && (
+              <StockFinancials
+                Intraday={TimeSeriesIntraday}
+                Daily={TimeSeriesDaily}
+                Weekly={TimeSeriesWeekly}
+                Monthly={TimeSeriesMonthly}
+              />
             )}
           </Fragment>
         )}
-
-        {/* Fundamentals */}
-        {/* <div className={`mt-4 ${tab === "fundamental" ? "" : "hidden"} `}>
-          {!StockSymbol ? (
-            <div className="w-full mt-20 mb-10 text-center">
-              <h4 className="text-xl font-bold text-gray-600">
-                Select a stock first
-              </h4>
-              <p className="text-gray-400">
-                You haven't selected any stock yet
-              </p>
-            </div>
-          ) : (
-            <div className="w-full">
-              {isStockOverviewLoading ? (
-                <p className="w-full mt-20 mb-10 text-center text-gray-400 animate-pulse">
-                  Looking for stock fundamentals...Please wait...
-                </p>
-              ) : (
-                <Fragment>
-                  <h1 className="text-2xl font-bold">
-                    {StockOverview.Name} ({StockOverview.Symbol})
-                  </h1>
-                  <p className="mt-1 text-gray-400">{StockOverview.Address}</p>
-                  <p className="mt-4 text-sm text-gray-500 w-1/2">
-                    {StockOverview.Description}
-                  </p>
-                  <div className="mt-10 mb-20 grid grid-cols-4 gap-4">
-                    <div className="p-3 border rounded-md">
-                      <p className="text-indigo-600">CIK</p>
-                      <p className="mt-1 text-2xl font-semibold">
-                        {StockOverview.CIK}
-                      </p>
-                    </div>
-                    <div className="p-3 border rounded-md">
-                      <p className="text-indigo-600">Exchange</p>
-                      <p className="mt-1 text-2xl font-semibold">
-                        {StockOverview.Exchange}
-                      </p>
-                    </div>
-                    <div className="p-3 border rounded-md">
-                      <p className="text-indigo-600">Currency</p>
-                      <p className="mt-1 text-2xl font-semibold">
-                        {StockOverview.Currency}
-                      </p>
-                    </div>
-                    <div className="p-3 border rounded-md">
-                      <p className="text-indigo-600">Country</p>
-                      <p className="mt-1 text-2xl font-semibold">
-                        {StockOverview.Country}
-                      </p>
-                    </div>
-                    <div className="p-3 border rounded-md">
-                      <p className="text-indigo-600">Sector</p>
-                      <p className="mt-1 text-2xl font-semibold">
-                        {StockOverview.Sector}
-                      </p>
-                    </div>
-                    <div className="p-3 border rounded-md">
-                      <p className="text-indigo-600">Industry</p>
-                      <p className="mt-1 text-xl font-semibold">
-                        {StockOverview.Industry}
-                      </p>
-                    </div>
-                    <div className="p-3 border rounded-md">
-                      <p className="text-indigo-600">Fiscal Year End</p>
-                      <p className="mt-1 text-2xl font-semibold">
-                        {StockOverview.FiscalYearEnd}
-                      </p>
-                    </div>
-                    <div className="p-3 border rounded-md">
-                      <p className="text-indigo-600">Latest Quarter</p>
-                      <p className="mt-1 text-2xl font-semibold">
-                        {StockOverview.LatestQuarter}
-                      </p>
-                    </div>
-                    <div className="p-3 border rounded-md">
-                      <p className="text-indigo-600">Market Capitalization</p>
-                      <p className="mt-1 text-2xl font-semibold">
-                        {StockOverview.MarketCapitalization}
-                      </p>
-                    </div>
-                    <div className="p-3 border rounded-md">
-                      <p className="text-indigo-600">EBITDA</p>
-                      <p className="mt-1 text-2xl font-semibold">
-                        {StockOverview.EBITDA}
-                      </p>
-                    </div>
-                    <div className="p-3 border rounded-md">
-                      <p className="text-indigo-600">PE Ratio</p>
-                      <p className="mt-1 text-2xl font-semibold">
-                        {StockOverview.PEGRatio}
-                      </p>
-                    </div>
-                    <div className="p-3 border rounded-md">
-                      <p className="text-indigo-600">Book Value</p>
-                      <p className="mt-1 text-2xl font-semibold">
-                        {StockOverview.BookValue}
-                      </p>
-                    </div>
-                    <div className="p-3 border rounded-md">
-                      <p className="text-indigo-600">Dividend Per Share</p>
-                      <p className="mt-1 text-2xl font-semibold">
-                        {StockOverview.DividendPerShare}
-                      </p>
-                    </div>
-                    <div className="p-3 border rounded-md">
-                      <p className="text-indigo-600">Dividend Yield</p>
-                      <p className="mt-1 text-2xl font-semibold">
-                        {StockOverview.DividendYield}
-                      </p>
-                    </div>
-                    <div className="p-3 border rounded-md">
-                      <p className="text-indigo-600">EPS</p>
-                      <p className="mt-1 text-2xl font-semibold">
-                        {StockOverview.EPS}
-                      </p>
-                    </div>
-                    <div className="p-3 border rounded-md">
-                      <p className="text-indigo-600">Revenue Per Share (TTM)</p>
-                      <p className="mt-1 text-2xl font-semibold">
-                        {StockOverview.RevenuePerShareTTM}
-                      </p>
-                    </div>
-                    <div className="p-3 border rounded-md">
-                      <p className="text-indigo-600">Profit Margin</p>
-                      <p className="mt-1 text-2xl font-semibold">
-                        {StockOverview.ProfitMargin}
-                      </p>
-                    </div>
-                    <div className="p-3 border rounded-md">
-                      <p className="text-indigo-600">Operating Margin (TTM)</p>
-                      <p className="mt-1 text-2xl font-semibold">
-                        {StockOverview.OperatingMarginTTM}
-                      </p>
-                    </div>
-                    <div className="p-3 border rounded-md">
-                      <p className="text-indigo-600">Return on Assets (TTM)</p>
-                      <p className="mt-1 text-2xl font-semibold">
-                        {StockOverview.ReturnOnAssetsTTM}
-                      </p>
-                    </div>
-                    <div className="p-3 border rounded-md">
-                      <p className="text-indigo-600">Return on Equity (TTM)</p>
-                      <p className="mt-1 text-2xl font-semibold">
-                        {StockOverview.ReturnOnEquityTTM}
-                      </p>
-                    </div>
-                    <div className="p-3 border rounded-md">
-                      <p className="text-indigo-600">Revenue (TTM)</p>
-                      <p className="mt-1 text-2xl font-semibold">
-                        {StockOverview.RevenueTTM}
-                      </p>
-                    </div>
-                    <div className="p-3 border rounded-md">
-                      <p className="text-indigo-600">Gross Profit (TTM)</p>
-                      <p className="mt-1 text-2xl font-semibold">
-                        {StockOverview.GrossProfitTTM}
-                      </p>
-                    </div>
-                    <div className="p-3 border rounded-md">
-                      <p className="text-indigo-600">Diluted EPS (TTM)</p>
-                      <p className="mt-1 text-2xl font-semibold">
-                        {StockOverview.DilutedEPSTTM}
-                      </p>
-                    </div>
-                    <div className="p-3 border rounded-md">
-                      <p className="text-indigo-600">
-                        Quarterly Earnings Growth (YoY)
-                      </p>
-                      <p className="mt-1 text-2xl font-semibold">
-                        {StockOverview.QuarterlyEarningsGrowthYOY}
-                      </p>
-                    </div>
-                    <div className="p-3 border rounded-md">
-                      <p className="text-indigo-600">
-                        Quarterly Revenue Growth (YoY)
-                      </p>
-                      <p className="mt-1 text-2xl font-semibold">
-                        {StockOverview.QuarterlyRevenueGrowthYOY}
-                      </p>
-                    </div>
-                    <div className="p-3 border rounded-md">
-                      <p className="text-indigo-600">Analyst Target Price</p>
-                      <p className="mt-1 text-2xl font-semibold">
-                        {StockOverview.AnalystTargetPrice}
-                      </p>
-                    </div>
-                    <div className="p-3 border rounded-md">
-                      <p className="text-indigo-600">Trailing PE</p>
-                      <p className="mt-1 text-2xl font-semibold">
-                        {StockOverview.TrailingPE}
-                      </p>
-                    </div>
-                    <div className="p-3 border rounded-md">
-                      <p className="text-indigo-600">Forward PE</p>
-                      <p className="mt-1 text-2xl font-semibold">
-                        {StockOverview.ForwardPE}
-                      </p>
-                    </div>
-                    <div className="p-3 border rounded-md">
-                      <p className="text-indigo-600">
-                        Price to Sales Ratio (TTM)
-                      </p>
-                      <p className="mt-1 text-2xl font-semibold">
-                        {StockOverview.PriceToSalesRatioTTM}
-                      </p>
-                    </div>
-                    <div className="p-3 border rounded-md">
-                      <p className="text-indigo-600">Price to Book Ratio</p>
-                      <p className="mt-1 text-2xl font-semibold">
-                        {StockOverview.PriceToBookRatio}
-                      </p>
-                    </div>
-                    <div className="p-3 border rounded-md">
-                      <p className="text-indigo-600">EV to Revenue</p>
-                      <p className="mt-1 text-2xl font-semibold">
-                        {StockOverview.EVToRevenue}
-                      </p>
-                    </div>
-                    <div className="p-3 border rounded-md">
-                      <p className="text-indigo-600">EV to EBITDA</p>
-                      <p className="mt-1 text-2xl font-semibold">
-                        {StockOverview.EVToEBITDA}
-                      </p>
-                    </div>
-                    <div className="p-3 border rounded-md">
-                      <p className="text-indigo-600">Beta</p>
-                      <p className="mt-1 text-2xl font-semibold">
-                        {StockOverview.Beta}
-                      </p>
-                    </div>
-                    <div className="p-3 border rounded-md">
-                      <p className="text-indigo-600">52-Week High</p>
-                      <p className="mt-1 text-2xl font-semibold">
-                        {StockOverview["52WeekHigh"]}
-                      </p>
-                    </div>
-                    <div className="p-3 border rounded-md">
-                      <p className="text-indigo-600">52-Week Low</p>
-                      <p className="mt-1 text-2xl font-semibold">
-                        {StockOverview["52WeekLow"]}
-                      </p>
-                    </div>
-                    <div className="p-3 border rounded-md">
-                      <p className="text-indigo-600">50-Day Moving Average</p>
-                      <p className="mt-1 text-2xl font-semibold">
-                        {StockOverview["50DayMovingAverage"]}
-                      </p>
-                    </div>
-                    <div className="p-3 border rounded-md">
-                      <p className="text-indigo-600">200-Day Moving Average</p>
-                      <p className="mt-1 text-2xl font-semibold">
-                        {StockOverview["200DayMovingAverage"]}
-                      </p>
-                    </div>
-                    <div className="p-3 border rounded-md">
-                      <p className="text-indigo-600">Shares Outstanding</p>
-                      <p className="mt-1 text-2xl font-semibold">
-                        {StockOverview.SharesOutstanding}
-                      </p>
-                    </div>
-                    <div className="p-3 border rounded-md">
-                      <p className="text-indigo-600">Dividend Date</p>
-                      <p className="mt-1 text-2xl font-semibold">
-                        {StockOverview.DividendDate}
-                      </p>
-                    </div>
-                    <div className="p-3 border rounded-md">
-                      <p className="text-indigo-600">Ex-Dividend Date</p>
-                      <p className="mt-1 text-2xl font-semibold">
-                        {StockOverview.ExDividendDate}
-                      </p>
-                    </div>
-                  </div>
-                </Fragment>
-              )}
-            </div>
-          )}
-        </div> */}
 
         {/* New Insights */}
         <div className={`mt-4 ${tab === "news_insights" ? "" : "hidden"} `}>

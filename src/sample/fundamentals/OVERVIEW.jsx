@@ -1,4 +1,4 @@
-export const STOCK_FUNDAMENTALS = {
+export const OVERVIEW = {
   Symbol: "IBM",
   AssetType: "Common Stock",
   Name: "International Business Machines",

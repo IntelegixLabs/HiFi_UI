@@ -27,3 +27,17 @@ export const transform = (data) => {
 
   return transformedData;
 };
+
+export const autoFormatCurrency = (data) => {
+  if (data >= 1e12) {
+    return (data / 1e12).toFixed(2) + " T";
+  } else if (data >= 1e9) {
+    return (data / 1e9).toFixed(2) + " B";
+  } else if (data >= 1e6) {
+    return (data / 1e6).toFixed(2) + " M";
+  } else if (data >= 1e3) {
+    return (data / 1e3).toFixed(2) + " K";
+  } else {
+    return data.toFixed(2);
+  }
+};
