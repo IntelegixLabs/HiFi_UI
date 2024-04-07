@@ -1,5 +1,6 @@
 import { useContext, useEffect, useState, useRef, Fragment } from "react";
 import { AppConfigContext } from "@contexts/AppConfigContext.jsx";
+import dayjs from "dayjs";
 
 // Sample data ================================================================
 // Samples for Stocks Fundamental Data
@@ -23,7 +24,14 @@ import { STOCK_SYMBOLS } from "@sample/STOCK_SYMBOLS.jsx";
 import { CircularProgressbar, buildStyles } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
 
-import StockDashboard from "@views/customer/stocks/StockDashboard.jsx";
+import StockOverview from "@views/customer/stocks/StockOverview.jsx";
+import StockEarnings from "@views/customer/stocks/StockEarnings.jsx";
+import StockIncomeStatement from "@views/customer/stocks/StockIncomeStatement.jsx";
+import StockNetIncome from "@views/customer/stocks/StockNetIncome.jsx";
+import StockFreeCashFlow from "@views/customer/stocks/StockFreeCashFlow.jsx";
+import StockGrossProfitOperatingExpense from "@views/customer/stocks/StockGrossProfitOperatingExpense.jsx";
+import CashWorkingCapital from "@views/customer/stocks/CashWorkingCapital.jsx";
+import BalanceSheetGraph from "@views/customer/stocks/BalanceSheetGraph.jsx";
 import StockFinancials from "@views/customer/stocks/StockFinancials.jsx";
 import StockHome from "@views/customer/stocks/StockHome.jsx";
 import { autoFormatCurrency } from "@/GeneralHelpers.jsx";
@@ -35,12 +43,23 @@ export default function Stocks() {
 
   const [isStockSearchPerformed, setIsStockSearchPerformed] = useState(false);
   const [StockSymbol, setStockSymbol] = useState("");
-  const [NewsSentiments, setNewsSentiments] = useState({});
   const [tab, setTab] = useState("dashboard");
 
   // Loaders Indicators
-  const [isGraphLoading, setIsGraphLoading] = useState(false);
-  const [isNewsSentimentsLoading, setIsNewsSentimentsLoading] = useState(false);
+  const [isStockOverviewLoading, setIsStockOverviewLoading] = useState(true);
+  const [isStockEarningsLoading, setIsStockEarningsLoading] = useState(true);
+  const [isIncomeStatementLoading, setIsIncomeStatementLoading] =
+    useState(true);
+  const [isCashFlowLoading, setIsCashFlowLoading] = useState(true);
+  const [isBalanceSheetLoading, setIsBalanceSheetLoading] = useState(true);
+  const [isNewsSentimentsLoading, setIsNewsSentimentsLoading] = useState(true);
+
+  // Stocks Fundamentals
+  const [Overview, setOverview] = useState({});
+  const [Earnings, setEarnings] = useState({});
+  const [IncomeStatement, setIncomeStatement] = useState({});
+  const [CashFlow, setCashFlow] = useState({});
+  const [BalanceSheet, setBalanceSheet] = useState({});
 
   // Stocks Core
   const [TimeSeriesIntraday, setTimeSeriesIntraday] = useState({});
@@ -48,176 +67,210 @@ export default function Stocks() {
   const [TimeSeriesWeekly, setTimeSeriesWeekly] = useState({});
   const [TimeSeriesMonthly, setTimeSeriesMonthly] = useState({});
 
-  // Stocks Fundamentals
-  const [Overview, setOverview] = useState({});
-  const [IncomeStatement, setIncomeStatement] = useState({});
-  const [CashFlow, setCashFlow] = useState({});
-  const [BalanceSheet, setBalanceSheet] = useState({});
-  const [Earnings, setEarnings] = useState({});
+  // News Sentiments
+  const [NewsSentiments, setNewsSentiments] = useState({});
 
   function handleSelectStock(event) {
     let stockSymbol = event.target.value;
-    setStockSymbol(stockSymbol);
 
-    setIsStockSearchPerformed(true);
-    // Here goes the sample data
-    // drawChart(TIME_SERIES_MONTHLY);
-    // getFundamentals(STOCK_FUNDAMENTALS);
-    getNewsSentiments(NEWS_AND_SENTIMENTS);
-    // setIsGraphLoading((isGraphLoading) => false);
-    // setIsStockOverviewLoading((isStockOverviewLoading) => false);
-    // setIsNewsSentimentsLoading((isNewsSentimentsLoading) => false);
-    loadCoreStockData();
-    loadStockFundamentalData();
-  }
-
-  function loadCoreStockData() {
-    if (APP_ENVIRONMENT === "production") {
-      let newTimeSeriesIntraday = {};
-      let newTimeSeriesDaily = {};
-      let newTimeSeriesWeekly = {};
-      let newTimeSeriesMonthly = {};
-
-      Api.post(
-        `/core_stocks/TIME_SERIES_INTRADAY/query?function=TIME_SERIES_INTRADAY&symbol=${StockSymbol}&interval=1min&outputsize=full&datatype=json`
-      )
-        .then((response) => {
-          newTimeSeriesIntraday = response.data;
-        })
-        .catch((error) => console.log(error));
-
-      Api.post(
-        `/core_stocks/TIME_SERIES_DAILY/query?function=TIME_SERIES_DAILY&symbol=${StockSymbol}`
-      )
-        .then((response) => {
-          newTimeSeriesDaily = response.data;
-        })
-        .catch((error) => console.log(error));
-
-      Api.post(
-        `/core_stocks/TIME_SERIES_WEEKLY/query?function=TIME_SERIES_WEEKLY&symbol=${StockSymbol}`
-      )
-        .then((response) => {
-          newTimeSeriesWeekly = response.data;
-        })
-        .catch((error) => console.log(error));
-
-      Api.post(
-        `/core_stocks/TIME_SERIES_MONTHLY/query?function=TIME_SERIES_MONTHLY&symbol=${StockSymbol}`
-      )
-        .then((response) => {
-          newTimeSeriesMonthly = response.data;
-        })
-        .catch((error) => console.log(error));
-
-      setTimeSeriesIntraday(newTimeSeriesIntraday);
-      setTimeSeriesDaily(newTimeSeriesDaily);
-      setTimeSeriesWeekly(newTimeSeriesWeekly);
-      setTimeSeriesMonthly(newTimeSeriesMonthly);
-    } else {
-      setTimeSeriesIntraday(TIME_SERIES_INTRADAY);
-      setTimeSeriesDaily(TIME_SERIES_DAILY);
-      setTimeSeriesWeekly(TIME_SERIES_WEEKLY);
-      setTimeSeriesMonthly(TIME_SERIES_MONTHLY);
-    }
-  }
-
-  function loadStockFundamentalData() {
-    if (APP_ENVIRONMENT === "production") {
-      // Here goes the API
-      let newOverview = {};
-      let newIncomeStatement = {};
-      let newCashFlow = {};
-      let newBalanceSheet = {};
-      let newEarnings = {};
-
-      Api.post(
-        `/fundamental_data/OVERVIEW/query?function=OVERVIEW&symbol=${StockSymbol}`
-      )
-        .then((response) => {
-          newOverview = response.data;
-        })
-        .catch((error) => {
-          console.log(error);
-        });
-
-      Api.post(
-        `/fundamental_data/INCOME_STATEMENT/query?function=INCOME_STATEMENT&symbol=${StockSymbol}`
-      )
-        .then((response) => {
-          newIncomeStatement = response.data;
-        })
-        .catch((error) => {
-          console.log(error);
-        });
-
-      Api.post(
-        `/fundamental_data/CASH_FLOW/query?function=CASH_FLOW&symbol=${StockSymbol}`
-      )
-        .then((response) => {
-          newCashFlow = response.data;
-        })
-        .catch((error) => {
-          console.log(error);
-        });
-
-      Api.post(
-        `/fundamental_data/BALANCE_SHEET/query?function=BALANCE_SHEET&symbol=${StockSymbol}`
-      )
-        .then((response) => {
-          newBalanceSheet = response.data;
-        })
-        .catch((error) => {
-          console.log(error);
-        });
-
-      Api.post(
-        `/fundamental_data/EARNINGS/query?function=EARNINGS&symbol=${StockSymbol}`
-      )
-        .then((response) => {
-          newEarnings = response.data;
-        })
-        .catch((error) => {
-          console.log(error);
-        });
-
-      setOverview(newOverview);
-      setIncomeStatement(newIncomeStatement);
-      setCashFlow(newCashFlow);
-      setBalanceSheet(newBalanceSheet);
-      setEarnings(newEarnings);
-      setIsStockSearchPerformed(true);
-    } else {
-      setOverview(OVERVIEW);
-      setIncomeStatement(INCOME_STATEMENT);
-      setCashFlow(CASH_FLOW);
-      setBalanceSheet(BALANCE_SHEET);
-      setEarnings(EARNINGS);
-      setIsStockSearchPerformed(true);
-    }
-  }
-
-  const getNewsSentiments = (news_data) => {
-    setNewsSentiments(news_data);
-  };
-
-  const formatTimestamp = (originalTimestamp) => {
-    let formattedTimestamp = new Date(
-      `${originalTimestamp.slice(0, 4)}-${originalTimestamp.slice(
-        4,
-        6
-      )}-${originalTimestamp.slice(6, 8)}T${originalTimestamp.slice(
-        9,
-        11
-      )}:${originalTimestamp.slice(11, 13)}:${originalTimestamp.slice(13, 15)}`
-    ).toLocaleDateString("en-US", {
-      day: "numeric",
-      month: "long",
-      year: "numeric",
+    setStockSymbol((prevStockSymbol) => {
+      let newStockSymbol = stockSymbol;
+      return newStockSymbol;
     });
 
-    return formattedTimestamp;
-  };
+    setIsStockSearchPerformed(true);
+
+    getStockOverview(stockSymbol);
+    getStockEarnings(stockSymbol);
+    getIncomeStatement(stockSymbol);
+    getCashFlow(stockSymbol);
+    getBalanceSheet(stockSymbol);
+    getNewsSentiments(stockSymbol);
+  }
+
+  async function getStockOverview(paramsStockSymbol) {
+    setIsStockOverviewLoading(true);
+
+    if (APP_ENVIRONMENT === "production") {
+      await Api.get(
+        `/fundamental_data/OVERVIEW/query?function=OVERVIEW&symbol=${paramsStockSymbol}`
+      )
+        .then((response) => {
+          setOverview((prevOverview) => {
+            let newOverview = response.data;
+            return newOverview;
+          });
+          setIsStockOverviewLoading(false);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    } else {
+      setOverview(OVERVIEW);
+      setIsStockOverviewLoading(false);
+    }
+  }
+
+  async function getStockEarnings(paramsStockSymbol) {
+    if (APP_ENVIRONMENT === "production") {
+      await Api.get(
+        `/fundamental_data/EARNINGS/query?function=EARNINGS&symbol=${paramsStockSymbol}`
+      )
+        .then((response) => {
+          setEarnings((prevStockEarnings) => {
+            let newStockEarnings = response.data;
+            return newStockEarnings;
+          });
+          setIsStockEarningsLoading(false);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    } else {
+      setEarnings(EARNINGS);
+      setIsStockEarningsLoading(false);
+    }
+  }
+
+  async function getIncomeStatement(paramsStockSymbol) {
+    if (APP_ENVIRONMENT === "production") {
+      await Api.get(
+        `/fundamental_data/INCOME_STATEMENT/query?function=INCOME_STATEMENT&symbol=${paramsStockSymbol}`
+      )
+        .then((response) => {
+          setIncomeStatement((prevIncomeStatement) => {
+            let newIncomeStatement = response.data;
+            return newIncomeStatement;
+          });
+          setIsIncomeStatementLoading(false);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    } else {
+      setIncomeStatement(INCOME_STATEMENT);
+      setIsIncomeStatementLoading(false);
+    }
+  }
+
+  async function getCashFlow(paramsStockSymbol) {
+    if (APP_ENVIRONMENT === "production") {
+      await Api.get(
+        `/fundamental_data/CASH_FLOW/query?function=CASH_FLOW&symbol=${paramsStockSymbol}`
+      )
+        .then((response) => {
+          setCashFlow((prevCashFlow) => {
+            let newCashFlow = response.data;
+            return newCashFlow;
+          });
+          setIsCashFlowLoading(false);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    } else {
+      setCashFlow(CASH_FLOW);
+      setIsCashFlowLoading(false);
+    }
+  }
+
+  async function getBalanceSheet(paramsStockSymbol) {
+    if (APP_ENVIRONMENT === "production") {
+      await Api.get(
+        `/fundamental_data/BALANCE_SHEET/query?function=BALANCE_SHEET&symbol=${paramsStockSymbol}`
+      )
+        .then((response) => {
+          setBalanceSheet((prevBalanceSheet) => {
+            let newBalanceSheet = response.data;
+            return newBalanceSheet;
+          });
+          setIsBalanceSheetLoading(false);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    } else {
+      setBalanceSheet(BALANCE_SHEET);
+      setIsBalanceSheetLoading(false);
+    }
+  }
+
+  // function loadCoreStockData() {
+  //   if (APP_ENVIRONMENT === "production") {
+  //     let newTimeSeriesIntraday = {};
+  //     let newTimeSeriesDaily = {};
+  //     let newTimeSeriesWeekly = {};
+  //     let newTimeSeriesMonthly = {};
+
+  //     Api.post(
+  //       `/core_stocks/TIME_SERIES_INTRADAY/query?function=TIME_SERIES_INTRADAY&symbol=${StockSymbol}&interval=1min&outputsize=full&datatype=json`
+  //     )
+  //       .then((response) => {
+  //         newTimeSeriesIntraday = response.data;
+  //       })
+  //       .catch((error) => console.log(error));
+
+  //     Api.post(
+  //       `/core_stocks/TIME_SERIES_DAILY/query?function=TIME_SERIES_DAILY&symbol=${StockSymbol}`
+  //     )
+  //       .then((response) => {
+  //         newTimeSeriesDaily = response.data;
+  //       })
+  //       .catch((error) => console.log(error));
+
+  //     Api.post(
+  //       `/core_stocks/TIME_SERIES_WEEKLY/query?function=TIME_SERIES_WEEKLY&symbol=${StockSymbol}`
+  //     )
+  //       .then((response) => {
+  //         newTimeSeriesWeekly = response.data;
+  //       })
+  //       .catch((error) => console.log(error));
+
+  //     Api.post(
+  //       `/core_stocks/TIME_SERIES_MONTHLY/query?function=TIME_SERIES_MONTHLY&symbol=${StockSymbol}`
+  //     )
+  //       .then((response) => {
+  //         newTimeSeriesMonthly = response.data;
+  //       })
+  //       .catch((error) => console.log(error));
+
+  //     setTimeSeriesIntraday(newTimeSeriesIntraday);
+  //     setTimeSeriesDaily(newTimeSeriesDaily);
+  //     setTimeSeriesWeekly(newTimeSeriesWeekly);
+  //     setTimeSeriesMonthly(newTimeSeriesMonthly);
+  //   } else {
+  //     setTimeSeriesIntraday(TIME_SERIES_INTRADAY);
+  //     setTimeSeriesDaily(TIME_SERIES_DAILY);
+  //     setTimeSeriesWeekly(TIME_SERIES_WEEKLY);
+  //     setTimeSeriesMonthly(TIME_SERIES_MONTHLY);
+  //   }
+  // }
+
+  function getNewsSentiments(paramsStockSymbol) {
+    if (APP_ENVIRONMENT === "production") {
+      let actualTime = dayjs();
+      let timeFrom = actualTime.format("YYYYMMDDTHHMM");
+      let timeTo = actualTime.add(30, "day");
+
+      Api.get(
+        `/news_insights/NEWS_SENTIMENT/query?function=NEWS_SENTIMENT&tickers=${paramsStockSymbol}&topics=technology&time_from=${timeFrom}&time_to=${timeTo}&sort=LATEST&limit=50`
+      )
+        .then((response) => {
+          setNewsSentiments((prevNewsSentiments) => {
+            let newNewsSentiments = response.data;
+            return newNewsSentiments;
+          });
+
+          setIsNewsSentimentsLoading(false);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    } else {
+      setNewsSentiments(NEWS_AND_SENTIMENTS);
+      setIsNewsSentimentsLoading(false);
+    }
+  }
 
   const scoreDefinitionAsString = (scoreString) => {
     // sentiment_score_definition as a string
@@ -272,7 +325,7 @@ export default function Stocks() {
         <div className="flex mb-4">
           <select
             type="text"
-            className="w-1/3 mx-auto mb-4"
+            className="w-1/3 my-10 py-2 px-4 bg-white mx-auto border hover:border-gray-300 rounded-lg cursor-pointer"
             onChange={handleSelectStock}
             defaultValue=""
           >
@@ -333,29 +386,212 @@ export default function Stocks() {
               </div>
             </div>
 
-            {tab === "dashboard" && (
-              <StockDashboard
-                Overview={Overview}
-                IncomeStatement={IncomeStatement}
-                CashFlow={CashFlow}
-                BalanceSheet={BalanceSheet}
-                Earnings={Earnings}
-              />
-            )}
+            <div className="my-10">
+              {tab === "dashboard" && (
+                <Fragment>
+                  <div className="flex gap-4">
+                    <div className="w-1/2 p-4 border rounded-lg">
+                      {!isStockOverviewLoading && (
+                        <StockOverview data={Overview} />
+                      )}
+                    </div>
+                    <div className="w-1/2 p-4 border rounded-lg">
+                      {!isStockEarningsLoading && (
+                        <Fragment>
+                          <StockEarnings data={Earnings} />
 
-            {tab === "financials" && (
-              <StockFinancials
-                Intraday={TimeSeriesIntraday}
-                Daily={TimeSeriesDaily}
-                Weekly={TimeSeriesWeekly}
-                Monthly={TimeSeriesMonthly}
-              />
-            )}
+                          <div className="my-10 text-xs flex flex-wrap items-start justify-center gap-2">
+                            <div className="px-2 py-1 border rounded-full">
+                              <span className="text-gray-500">Mkt. Cap: </span>
+                              <span className="font-medium">
+                                {autoFormatCurrency(
+                                  Overview.MarketCapitalization
+                                )}
+                              </span>
+                            </div>
+                            <div className="px-2 py-1 border rounded-full">
+                              <span className="text-gray-500">P/E: </span>
+                              <span className="font-medium">
+                                {Overview.PERatio}
+                              </span>
+                            </div>
+                            <div className="px-2 py-1 border rounded-full">
+                              <span className="text-gray-500">PEG: </span>
+                              <span className="font-medium">
+                                {Overview.PEGRatio}
+                              </span>
+                            </div>
+                            <div className="px-2 py-1 border rounded-full">
+                              <span className="text-gray-500">P/S: </span>
+                              <span className="font-medium">
+                                {Overview.PriceToSalesRatioTTM}
+                              </span>
+                            </div>
+                            <div className="px-2 py-1 border rounded-full">
+                              <span className="text-gray-500">EBITDA: </span>
+                              <span className="font-medium">
+                                {autoFormatCurrency(Overview.EBITDA)}
+                              </span>
+                            </div>
+                            <div className="px-2 py-1 border rounded-full">
+                              <span className="text-gray-500">P/B: </span>
+                              <span className="font-medium">
+                                {Overview.PriceToBookRatio}
+                              </span>
+                            </div>
+                          </div>
+                        </Fragment>
+                      )}
+                    </div>
+                  </div>
+
+                  {!isIncomeStatementLoading && (
+                    <div className="my-10 flex gap-4">
+                      <div className="w-1/2 p-4 border rounded-lg">
+                        <h4 className="font-semibold text-xl">
+                          Income Statement
+                        </h4>
+                        <StockIncomeStatement data={IncomeStatement} />
+                      </div>
+                      <div className="w-1/2 p-4 border rounded-lg">
+                        <h4 className="font-semibold text-xl">Net Income</h4>
+                        <StockNetIncome data={IncomeStatement} />
+                      </div>
+                    </div>
+                  )}
+
+                  {!isCashFlowLoading && (
+                    <div className="my-10 p-4 border rounded-lg">
+                      <h4 className="font-semibold text-xl">Free Cash Flow</h4>
+                      <StockFreeCashFlow data={CashFlow} />
+                    </div>
+                  )}
+
+                  <div className="my-10 flex gap-4">
+                    <div className="w-1/2 p-4 border rounded-lg">
+                      <h4 className="font-semibold text-xl">
+                        Gross Profit, Operating Expense
+                      </h4>
+                      {!isIncomeStatementLoading && (
+                        <StockGrossProfitOperatingExpense
+                          data={IncomeStatement}
+                        />
+                      )}
+                    </div>
+                    <div className="w-1/2 p-4 border rounded-lg">
+                      <h4 className="font-semibold text-xl">
+                        Cash, Working Capital
+                      </h4>
+                      {!isBalanceSheetLoading && (
+                        <CashWorkingCapital data={BalanceSheet} />
+                      )}
+                    </div>
+                  </div>
+
+                  {!isBalanceSheetLoading && (
+                    <div className="my-10 p-4 border rounded-lg">
+                      <h4 className="font-semibold text-xl">Balance Sheet</h4>
+                      <BalanceSheetGraph data={BalanceSheet} />
+                    </div>
+                  )}
+                </Fragment>
+              )}
+
+              {tab === "financials" && (
+                <StockFinancials
+                  Intraday={TimeSeriesIntraday}
+                  Daily={TimeSeriesDaily}
+                  Weekly={TimeSeriesWeekly}
+                  Monthly={TimeSeriesMonthly}
+                />
+              )}
+            </div>
           </Fragment>
         )}
 
         {/* New Insights */}
-        <div className={`mt-4 ${tab === "news_insights" ? "" : "hidden"} `}>
+        {tab === "news_insights" && (
+          <Fragment>
+            {!isNewsSentimentsLoading && (
+              <div className="flex gap-8">
+                <div className="w-3/5">
+                  {NewsSentiments.feed.map((newsFeed, index) => {
+                    return (
+                      <div
+                        className="p-4 my-4 w-full border flex gap-4 shadow rounded-lg"
+                        key={index}
+                      >
+                        <img
+                          className="w-2/6 rounded-md"
+                          src={newsFeed.banner_image}
+                          alt=""
+                        />
+                        <div className="w-4/6">
+                          <a
+                            href={newsFeed.url}
+                            target="_blank"
+                            className="font-semibold text-lg text-blue-500 hover:text-blue-600 hover:underline"
+                          >
+                            {newsFeed.title}
+                          </a>
+                          <p className="text-sm text-gray-500">
+                            {newsFeed.summary}
+                          </p>
+                          <div className="mt-6 flex items-end justify-between gap-2">
+                            <div>
+                              <p className="text-sm text-gray-400">
+                                {dayjs(newsFeed.time_published).format('DD MMM YYYY')}
+                              </p>
+                              <p className="text-sm text-gray-500">
+                                from&nbsp;
+                                <a
+                                  className="font-semibold hover:underline"
+                                  href={newsFeed.source_domain}
+                                  target="_blank"
+                                >
+                                  {newsFeed.source}
+                                </a>{" "}
+                                by{" "}
+                                <span className="font-semibold">
+                                  {newsFeed.authors[0]}
+                                </span>
+                              </p>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <div className="w-6 h-6">
+                                <CircularProgressbar
+                                  value={newsFeed.overall_sentiment_score}
+                                  maxValue={1}
+                                  styles={buildStyles({
+                                    borderWidth: "2px",
+                                    textColor: "#f88",
+                                    trailColor: "#d6d6d6",
+                                    backgroundColor: "#3e98c7",
+                                  })}
+                                />
+                              </div>
+                              <p className="text-sm">
+                                {newsFeed.overall_sentiment_label}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+                <div className="w-2/5">
+                  <div className="sticky top-16">
+                    {scoreDefinitionAsString(
+                      NewsSentiments.sentiment_score_definition
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+          </Fragment>
+        )}
+        {/* <div className={`mt-4 ${tab === "news_insights" ? "" : "hidden"} `}>
           {!StockSymbol ? (
             <div className="w-full mt-20 mb-10 text-center">
               <h4 className="text-xl font-bold text-gray-600">
@@ -450,7 +686,7 @@ export default function Stocks() {
               )}
             </Fragment>
           )}
-        </div>
+        </div> */}
       </div>
     </div>
   );
