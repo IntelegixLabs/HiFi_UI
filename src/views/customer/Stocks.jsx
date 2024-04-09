@@ -397,9 +397,9 @@ export default function Stocks() {
               </nav>
 
               <div className="w-2/6">
-                <p className="w-full text-right">
+                <p className="w-full text-right text-blue-600">
                   {Overview.Currency}{" "}
-                  {autoFormatCurrency(Overview.MarketCapitalization)}, -1.01%
+                  {autoFormatCurrency(Overview.MarketCapitalization)}
                 </p>
               </div>
             </div>
