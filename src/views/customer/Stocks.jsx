@@ -33,6 +33,9 @@ import StockGrossProfitOperatingExpense from "@views/customer/stocks/StockGrossP
 import CashWorkingCapital from "@views/customer/stocks/CashWorkingCapital.jsx";
 import BalanceSheetGraph from "@views/customer/stocks/BalanceSheetGraph.jsx";
 import StockFinancials from "@views/customer/stocks/StockFinancials.jsx";
+import TimeSeriesDailyGraph from "@views/customer/stocks/TimeSeriesDailyGraph.jsx";
+import TimeSeriesWeeklyGraph from "@views/customer/stocks/TimeSeriesWeeklyGraph.jsx";
+import TimeSeriesMonthlyGraph from "@views/customer/stocks/TimeSeriesMonthlyGraph.jsx";
 import StockHome from "@views/customer/stocks/StockHome.jsx";
 import { autoFormatCurrency } from "@/GeneralHelpers.jsx";
 
@@ -44,6 +47,7 @@ export default function Stocks() {
   const [isStockSearchPerformed, setIsStockSearchPerformed] = useState(false);
   const [StockSymbol, setStockSymbol] = useState("");
   const [tab, setTab] = useState("dashboard");
+  const [stockMarketViewTab, setStockMarketViewTab] = useState("Monthly");
 
   // Loaders Indicators
   const [isStockOverviewLoading, setIsStockOverviewLoading] = useState(true);
@@ -52,6 +56,12 @@ export default function Stocks() {
     useState(true);
   const [isCashFlowLoading, setIsCashFlowLoading] = useState(true);
   const [isBalanceSheetLoading, setIsBalanceSheetLoading] = useState(true);
+  const [isTimeSeriesDailyLoading, setIsTimeSeriesDailyLoading] =
+    useState(true);
+  const [isTimeSeriesWeeklyLoading, setIsTimeSeriesWeeklyLoading] =
+    useState(true);
+  const [isTimeSeriesMonthlyLoading, setIsTimeSeriesMonthlyLoading] =
+    useState(true);
   const [isNewsSentimentsLoading, setIsNewsSentimentsLoading] = useState(true);
 
   // Stocks Fundamentals
@@ -62,7 +72,6 @@ export default function Stocks() {
   const [BalanceSheet, setBalanceSheet] = useState({});
 
   // Stocks Core
-  const [TimeSeriesIntraday, setTimeSeriesIntraday] = useState({});
   const [TimeSeriesDaily, setTimeSeriesDaily] = useState({});
   const [TimeSeriesWeekly, setTimeSeriesWeekly] = useState({});
   const [TimeSeriesMonthly, setTimeSeriesMonthly] = useState({});
@@ -85,6 +94,9 @@ export default function Stocks() {
     getIncomeStatement(stockSymbol);
     getCashFlow(stockSymbol);
     getBalanceSheet(stockSymbol);
+    getTimeSeriesDaily(stockSymbol);
+    getTimeSeriesWeekly(stockSymbol);
+    getTimeSeriesMonthly(stockSymbol);
     getNewsSentiments(stockSymbol);
   }
 
@@ -195,56 +207,62 @@ export default function Stocks() {
     }
   }
 
-  // function loadCoreStockData() {
-  //   if (APP_ENVIRONMENT === "production") {
-  //     let newTimeSeriesIntraday = {};
-  //     let newTimeSeriesDaily = {};
-  //     let newTimeSeriesWeekly = {};
-  //     let newTimeSeriesMonthly = {};
+  async function getTimeSeriesDaily(paramsStockSymbol) {
+    if (APP_ENVIRONMENT === "production") {
+      Api.get(
+        `/core_stocks/TIME_SERIES_DAILY/query?function=TIME_SERIES_DAILY&symbol=${paramsStockSymbol}`
+      )
+        .then((response) => {
+          setTimeSeriesDaily((prevTimeSeriesDaily) => {
+            let newTimeSeriesDaily = response.data;
+            return newTimeSeriesDaily;
+          });
+          setIsTimeSeriesDailyLoading(false);
+        })
+        .catch((error) => console.log(error));
+    } else {
+      setTimeSeriesDaily(TIME_SERIES_DAILY);
+      setIsTimeSeriesDailyLoading(false);
+    }
+  }
 
-  //     Api.post(
-  //       `/core_stocks/TIME_SERIES_INTRADAY/query?function=TIME_SERIES_INTRADAY&symbol=${StockSymbol}&interval=1min&outputsize=full&datatype=json`
-  //     )
-  //       .then((response) => {
-  //         newTimeSeriesIntraday = response.data;
-  //       })
-  //       .catch((error) => console.log(error));
+  async function getTimeSeriesWeekly(paramsStockSymbol) {
+    if (APP_ENVIRONMENT === "production") {
+      Api.get(
+        `/core_stocks/TIME_SERIES_WEEKLY/query?function=TIME_SERIES_WEEKLY&symbol=${paramsStockSymbol}`
+      )
+        .then((response) => {
+          setTimeSeriesWeekly((prevTimeSeriesWeekly) => {
+            let newTimeSeriesWeekly = response.data;
+            return newTimeSeriesWeekly;
+          });
+          setIsTimeSeriesWeeklyLoading(false);
+        })
+        .catch((error) => console.log(error));
+    } else {
+      setTimeSeriesWeekly(TIME_SERIES_WEEKLY);
+      setIsTimeSeriesWeeklyLoading(false);
+    }
+  }
 
-  //     Api.post(
-  //       `/core_stocks/TIME_SERIES_DAILY/query?function=TIME_SERIES_DAILY&symbol=${StockSymbol}`
-  //     )
-  //       .then((response) => {
-  //         newTimeSeriesDaily = response.data;
-  //       })
-  //       .catch((error) => console.log(error));
-
-  //     Api.post(
-  //       `/core_stocks/TIME_SERIES_WEEKLY/query?function=TIME_SERIES_WEEKLY&symbol=${StockSymbol}`
-  //     )
-  //       .then((response) => {
-  //         newTimeSeriesWeekly = response.data;
-  //       })
-  //       .catch((error) => console.log(error));
-
-  //     Api.post(
-  //       `/core_stocks/TIME_SERIES_MONTHLY/query?function=TIME_SERIES_MONTHLY&symbol=${StockSymbol}`
-  //     )
-  //       .then((response) => {
-  //         newTimeSeriesMonthly = response.data;
-  //       })
-  //       .catch((error) => console.log(error));
-
-  //     setTimeSeriesIntraday(newTimeSeriesIntraday);
-  //     setTimeSeriesDaily(newTimeSeriesDaily);
-  //     setTimeSeriesWeekly(newTimeSeriesWeekly);
-  //     setTimeSeriesMonthly(newTimeSeriesMonthly);
-  //   } else {
-  //     setTimeSeriesIntraday(TIME_SERIES_INTRADAY);
-  //     setTimeSeriesDaily(TIME_SERIES_DAILY);
-  //     setTimeSeriesWeekly(TIME_SERIES_WEEKLY);
-  //     setTimeSeriesMonthly(TIME_SERIES_MONTHLY);
-  //   }
-  // }
+  async function getTimeSeriesMonthly(paramsStockSymbol) {
+    if (APP_ENVIRONMENT === "production") {
+      Api.get(
+        `/core_stocks/TIME_SERIES_MONTHLY/query?function=TIME_SERIES_MONTHLY&symbol=${paramsStockSymbol}`
+      )
+        .then((response) => {
+          setTimeSeriesMonthly((prevTimeSeriesMonthly) => {
+            let newTimeSeriesMonthly = response.data;
+            return newTimeSeriesMonthly;
+          });
+          setIsTimeSeriesMonthlyLoading(false);
+        })
+        .catch((error) => console.log(error));
+    } else {
+      setTimeSeriesMonthly(TIME_SERIES_MONTHLY);
+      setIsTimeSeriesMonthlyLoading(false);
+    }
+  }
 
   function getNewsSentiments(paramsStockSymbol) {
     if (APP_ENVIRONMENT === "production") {
@@ -357,14 +375,14 @@ export default function Stocks() {
                   Dashboard
                 </button>
                 <button
-                  onClick={() => setTab("financials")}
+                  onClick={() => setTab("market")}
                   className={`w-1/3 px-2 py-2 shrink-0 border-b-2 text-sm font-medium duration-200 ${
-                    tab === "financials"
+                    tab === "market"
                       ? "text-sky-600 border-sky-500"
                       : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"
                   }`}
                 >
-                  Financials
+                  Market
                 </button>
                 <button
                   onClick={() => setTab("news_insights")}
@@ -497,13 +515,63 @@ export default function Stocks() {
                 </Fragment>
               )}
 
-              {tab === "financials" && (
-                <StockFinancials
-                  Intraday={TimeSeriesIntraday}
-                  Daily={TimeSeriesDaily}
-                  Weekly={TimeSeriesWeekly}
-                  Monthly={TimeSeriesMonthly}
-                />
+              {tab === "market" && (
+                <Fragment>
+                  <div className="flex text-sm gap-1 rounded-lg">
+                    <button
+                      onClick={() => setStockMarketViewTab("Daily")}
+                      className={`${
+                        stockMarketViewTab === "Daily"
+                          ? "text-gray-600 bg-gray-100"
+                          : ""
+                      } py-1 px-2 rounded-lg`}
+                    >
+                      Daily
+                    </button>
+                    <button
+                      onClick={() => setStockMarketViewTab("Weekly")}
+                      className={`${
+                        stockMarketViewTab === "Weekly"
+                          ? "text-gray-600 bg-gray-100"
+                          : ""
+                      } py-1 px-2 rounded-lg`}
+                    >
+                      Weekly
+                    </button>
+                    <button
+                      onClick={() => setStockMarketViewTab("Monthly")}
+                      className={`${
+                        stockMarketViewTab === "Monthly"
+                          ? "text-gray-600 bg-gray-100"
+                          : ""
+                      } py-1 px-2 rounded-lg`}
+                    >
+                      Monthly
+                    </button>
+                  </div>
+
+                  {stockMarketViewTab === "Daily" && (
+                    <Fragment>
+                      {!isTimeSeriesDailyLoading && (
+                        <TimeSeriesDailyGraph plotData={TimeSeriesDaily} />
+                      )}
+                    </Fragment>
+                  )}
+                  {stockMarketViewTab === "Weekly" && (
+                    <Fragment>
+                      {!isTimeSeriesWeeklyLoading && (
+                        <TimeSeriesWeeklyGraph plotData={TimeSeriesWeekly} />
+                      )}
+                    </Fragment>
+                  )}
+                  {stockMarketViewTab === "Monthly" && (
+                    <Fragment>
+                      {!isTimeSeriesMonthlyLoading && (
+                        <TimeSeriesMonthlyGraph plotData={TimeSeriesMonthly} />
+                      )}
+                    </Fragment>
+                  )}
+                </Fragment>
               )}
             </div>
           </Fragment>
@@ -540,7 +608,9 @@ export default function Stocks() {
                           <div className="mt-6 flex items-end justify-between gap-2">
                             <div>
                               <p className="text-sm text-gray-400">
-                                {dayjs(newsFeed.time_published).format('DD MMM YYYY')}
+                                {dayjs(newsFeed.time_published).format(
+                                  "DD MMM YYYY"
+                                )}
                               </p>
                               <p className="text-sm text-gray-500">
                                 from&nbsp;
@@ -591,102 +661,6 @@ export default function Stocks() {
             )}
           </Fragment>
         )}
-        {/* <div className={`mt-4 ${tab === "news_insights" ? "" : "hidden"} `}>
-          {!StockSymbol ? (
-            <div className="w-full mt-20 mb-10 text-center">
-              <h4 className="text-xl font-bold text-gray-600">
-                Select a stock first
-              </h4>
-              <p className="text-gray-400">
-                You haven't selected any stock yet
-              </p>
-            </div>
-          ) : (
-            <Fragment>
-              {isNewsSentimentsLoading ? (
-                <p className="w-full mt-20 mb-10 text-center text-gray-400 animate-pulse">
-                  Getting News...Please wait...
-                </p>
-              ) : (
-                <div className="flex gap-8">
-                  <div className="w-3/5">
-                    {NewsSentiments.feed.map((newsFeed, index) => {
-                      return (
-                        <div
-                          className="p-4 my-4 w-full border flex gap-4 shadow rounded-lg"
-                          key={index}
-                        >
-                          <img
-                            className="w-2/6 rounded-md"
-                            src={newsFeed.banner_image}
-                            alt=""
-                          />
-                          <div className="w-4/6">
-                            <a
-                              href={newsFeed.url}
-                              target="_blank"
-                              className="font-semibold text-lg text-blue-500 hover:text-blue-600 hover:underline"
-                            >
-                              {newsFeed.title}
-                            </a>
-                            <p className="text-sm text-gray-500">
-                              {newsFeed.summary}
-                            </p>
-                            <div className="mt-6 flex items-end justify-between gap-2">
-                              <div>
-                                <p className="text-sm text-gray-400">
-                                  {formatTimestamp(newsFeed.time_published)}
-                                </p>
-                                <p className="text-sm text-gray-500">
-                                  from&nbsp;
-                                  <a
-                                    className="font-semibold hover:underline"
-                                    href={newsFeed.source_domain}
-                                    target="_blank"
-                                  >
-                                    {newsFeed.source}
-                                  </a>{" "}
-                                  by{" "}
-                                  <span className="font-semibold">
-                                    {newsFeed.authors[0]}
-                                  </span>
-                                </p>
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <div className="w-6 h-6">
-                                  <CircularProgressbar
-                                    value={newsFeed.overall_sentiment_score}
-                                    maxValue={1}
-                                    styles={buildStyles({
-                                      borderWidth: "2px",
-                                      textColor: "#f88",
-                                      trailColor: "#d6d6d6",
-                                      backgroundColor: "#3e98c7",
-                                    })}
-                                  />
-                                </div>
-                                <p className="text-sm">
-                                  {newsFeed.overall_sentiment_label}
-                                </p>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                  <div className="w-2/5">
-                    <div className="sticky top-16">
-                      {scoreDefinitionAsString(
-                        NewsSentiments.sentiment_score_definition
-                      )}
-                    </div>
-                  </div>
-                </div>
-              )}
-            </Fragment>
-          )}
-        </div> */}
       </div>
     </div>
   );
