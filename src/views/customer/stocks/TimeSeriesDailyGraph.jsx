@@ -9,7 +9,7 @@ export default function TimeSeriesDailyGraph({ plotData }) {
 
   useEffect(() => {
     drawChart(plotData);
-  });
+  }, []);
 
   function drawChart(paramsData) {
     let initialData = transform(paramsData, 'daily');
