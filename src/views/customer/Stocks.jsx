@@ -32,7 +32,6 @@ import StockFreeCashFlow from "@views/customer/stocks/StockFreeCashFlow.jsx";
 import StockGrossProfitOperatingExpense from "@views/customer/stocks/StockGrossProfitOperatingExpense.jsx";
 import CashWorkingCapital from "@views/customer/stocks/CashWorkingCapital.jsx";
 import BalanceSheetGraph from "@views/customer/stocks/BalanceSheetGraph.jsx";
-import StockFinancials from "@views/customer/stocks/StockFinancials.jsx";
 import TimeSeriesDailyGraph from "@views/customer/stocks/TimeSeriesDailyGraph.jsx";
 import TimeSeriesWeeklyGraph from "@views/customer/stocks/TimeSeriesWeeklyGraph.jsx";
 import TimeSeriesMonthlyGraph from "@views/customer/stocks/TimeSeriesMonthlyGraph.jsx";
