@@ -32,9 +32,11 @@ export default function StockFreeCashFlow({ data }) {
     scales: {
       x: {
         grid: { display: false },
+        display: false,
       },
       y: {
         grid: { display: false },
+        position: "right",
       },
     },
   };

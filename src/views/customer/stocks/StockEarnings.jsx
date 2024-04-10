@@ -26,12 +26,14 @@ export default function StockEarnings({ data }) {
     },
     scales: {
       x: {
-        grid: { display: false }
+        grid: { display: false },
+        display: false,
       },
       y: {
-        grid: { display: false }
-      }
-    }
+        grid: { display: false },
+        position: "right",
+      },
+    },
   };
   const initData = {
     labels: labels.reverse(),

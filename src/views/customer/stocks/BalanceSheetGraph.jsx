@@ -18,7 +18,7 @@ export default function BalanceSheetGraph({ data }) {
   const initOptions = {
     elements: {
       point: {
-        radius: 0,
+        radius: 2,
       },
     },
     plugins: {
@@ -30,9 +30,11 @@ export default function BalanceSheetGraph({ data }) {
     scales: {
       x: {
         grid: { display: false },
+        display: false,
       },
       y: {
         grid: { display: false },
+        position: "right",
       },
     },
   };
