@@ -76,7 +76,7 @@ export default function UserSettingsProfile() {
               name="firstName"
               type="text"
               value={firstName}
-              onChange={handleGeneralDetails}
+              onChange={(e) => handleGeneralDetails(e)}
               placeholder="First Name"
             />
           </div>
@@ -90,7 +90,7 @@ export default function UserSettingsProfile() {
               name="lastName"
               type="text"
               value={lastName}
-              onChange={handleGeneralDetails}
+              onChange={(e) => handleGeneralDetails(e)}
               placeholder="Last Name"
             />
           </div>
@@ -107,7 +107,7 @@ export default function UserSettingsProfile() {
               name="email"
               type="text"
               value={email}
-              onChange={handleGeneralDetails}
+              onChange={(e) => handleGeneralDetails(e)}
               placeholder="Email"
             />
           </div>
@@ -121,7 +121,7 @@ export default function UserSettingsProfile() {
               name="phoneNumber"
               type="text"
               value={phoneNumber}
-              onChange={handleGeneralDetails}
+              onChange={(e) => handleGeneralDetails(e)}
               placeholder="Phone number"
             />
           </div>

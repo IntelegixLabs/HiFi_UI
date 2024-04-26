@@ -1,11 +1,17 @@
-import { Fragment, useState } from "react";
+import { Fragment, useContext, useEffect, useState } from "react";
 import { Api } from "@api/Api.jsx";
 import dayjs from "dayjs";
+import { UserProfileContext } from "@contexts/UserProfileContext.jsx";
 
 export default function Onboarding() {
-  const [phoneNumber, setPhoneNumber] = useState(0);
-  const [gender, setGender] = useState("");
-  const [dob, setDob] = useState("");
+  const {
+    phoneNumber,
+    gender,
+    DOB,
+    setPhoneNumber,
+    setGender,
+    setDOB,
+  } = useContext(UserProfileContext);
 
   const handleChange = (e) => {
     let name = e.target.name;
@@ -20,9 +26,8 @@ export default function Onboarding() {
     }
 
     if (name === "dob") {
-      let formatDob = dayjs(value).format('DD-MM-YYYY');
-      setDob(formatDob);
-      console.log("Hello World:", formatDob);
+      let formatDob = dayjs(value).format("DD-MM-YYYY");
+      setDOB(formatDob);
     }
 
     return;
@@ -32,7 +37,7 @@ export default function Onboarding() {
     const payload = {
       phoneNumber: phoneNumber,
       gender: gender,
-      dob: dob,
+      dob: DOB,
     };
 
     Api.post("/profile", payload).then((response) => {
@@ -54,6 +59,7 @@ export default function Onboarding() {
             className="mt-1 px-2 py-1 border rounded-lg"
             type="text"
             placeholder="Phone number"
+            value={phoneNumber}
             onChange={(e) => handleChange(e)}
           />
         </div>
@@ -66,6 +72,7 @@ export default function Onboarding() {
                 type="radio"
                 value="Male"
                 onChange={(e) => handleChange(e)}
+                checked={gender === 'Male'}
               />{" "}
               Male
             </div>
@@ -75,6 +82,7 @@ export default function Onboarding() {
                 type="radio"
                 value="Female"
                 onChange={(e) => handleChange(e)}
+                checked={gender === 'Female'}
               />{" "}
               Female
             </div>
@@ -92,7 +100,10 @@ export default function Onboarding() {
         </div>
 
         <div className="mt-6 flex flex-col-reverse">
-          <button className="px-2 py-3 font-semibold text-white bg-blue-500 hover:bg-blue-600 rounded-lg" onClick={handleSubmit}>
+          <button
+            className="px-2 py-3 font-semibold text-white bg-blue-500 hover:bg-blue-600 rounded-lg"
+            onClick={handleSubmit}
+          >
             Submit
           </button>
         </div>
