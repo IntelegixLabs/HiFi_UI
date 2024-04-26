@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 
 import { Api } from "@api/Api.jsx";
-import Navbar from "@components/customer/Navbar.jsx";
+import Navbar from "@components/customer/Navbar/Navbar.jsx";
 import { UserProfileContext } from "../contexts/UserProfileContext";
 
 export default function CustomerLayout() {
@@ -65,6 +65,14 @@ export default function CustomerLayout() {
       }}
     >
       <Navbar />
+      <df-messenger
+        project-id="hifi-420618"
+        agent-id="9a000ad6-cbdc-4d8a-832b-6e9728bb577e"
+        language-code="en"
+        max-query-length="-1"
+      >
+        <df-messenger-chat-bubble chat-title=""></df-messenger-chat-bubble>
+      </df-messenger>
       <Outlet />
     </UserProfileContext.Provider>
   );

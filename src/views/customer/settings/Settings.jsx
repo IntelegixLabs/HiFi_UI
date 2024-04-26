@@ -105,13 +105,13 @@ export default function UserSettings() {
     await (
       await marketplace.create_User(
         web3Account,
-        "Arnab Das",
+        "Jaldeep Rajender",
         "134556",
-        "raj713335@gmail.com",
-        "+91 9547966499",
+        "jaldeep1243@gmail.com",
+        "+91 7654895432",
         "Male",
-        "20-06-1997",
-        "CGDPD1480N"
+        "14-03-1992",
+        "BGYPJ0129A"
       )
     ).wait();
     setWeb3AccountType(true);

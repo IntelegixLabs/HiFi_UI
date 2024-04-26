@@ -4,9 +4,15 @@ import Layout from "@layouts/CustomerLayout.jsx";
 import Onboarding from "@views/customer/Onboarding.jsx";
 import Home from "@views/customer/Home.jsx";
 import Stocks from "@views/customer/Stocks.jsx";
+import Cryptocurrency from "@views/customer/Cryptocurrency.jsx";
+
 import Settings from "@views/customer/settings/Settings.jsx";
 import SettingsProfile from "@views/customer/settings/SettingsProfile.jsx";
 import SettingsPaymentSubscriptions from "@views/customer/settings/SettingsPaymentSubscriptions.jsx";
+
+import InvestorPersonality from "@/views/customer/InvestorPersonality.jsx";
+import SIPCalculator from "@views/customer/tools/SIPCalculator.jsx";
+import RetirementCalculator from "@views/customer/tools/RetirementCalculator.jsx";
 
 export default [
   {
@@ -33,6 +39,26 @@ export default [
         path: "/stocks",
         name: "CustomerStocks",
         element: <Stocks />,
+      },
+      {
+        path: "/cryptocurrency",
+        name: "CustomerCryptocurrency",
+        element: <Cryptocurrency />,
+      },
+      {
+        path: "/investor-personality",
+        name: "CustomerInvestorPersonality",
+        element: <InvestorPersonality />,
+      },
+      {
+        path: "/tools/sip-calculator",
+        name: "CustomerSIPCalculator",
+        element: <SIPCalculator />,
+      },
+      {
+        path: "/tools/retirement-calculator",
+        name: "CustomerRetirementCalculator",
+        element: <RetirementCalculator />,
       },
       {
         path: "/settings",
