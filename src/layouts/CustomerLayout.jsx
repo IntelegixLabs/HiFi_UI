@@ -17,6 +17,8 @@ export default function CustomerLayout() {
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
+  const [gender, setGender] = useState("");
+  const [DOB, setDOB] = useState(null);
 
   useEffect(() => {
     function initCustomerData() {
@@ -28,6 +30,8 @@ export default function CustomerLayout() {
               setCustomer(response.data);
 
               setPhoneNumber(response.data.phoneNumber);
+              setGender(response.data.gender);
+              setDOB(response.data.dob);
               setUserId(response.data.userId);
 
               Api.get("/profile/1")
@@ -58,10 +62,14 @@ export default function CustomerLayout() {
         lastName,
         email,
         phoneNumber,
+        gender,
+        DOB,
         setFirstName,
         setLastName,
         setEmail,
         setPhoneNumber,
+        setGender,
+        setDOB
       }}
     >
       <Navbar />

@@ -9,7 +9,7 @@ import IMG_USER_PROFILE from "@assets/profile_pic.png";
 
 export default function UserSettingsProfile() {
 
-  const { userId, firstName, lastName, email, phoneNumber, setFirstName, setLastName, setEmail, setPhoneNumber } = useContext(UserProfileContext);
+  const { userId, firstName, lastName, email, phoneNumber, gender, DOB, setFirstName, setLastName, setEmail, setPhoneNumber, setGender, setDOB } = useContext(UserProfileContext);
 
   const handleGeneralDetails = (e) => {
     e.preventDefault();
@@ -36,6 +36,8 @@ export default function UserSettingsProfile() {
   const updateGeneralDetails = () => {
     const payload = {
       phoneNumber: phoneNumber,
+      gender: gender,
+      dob: DOB
     };
 
     Api.put(`/profile/${userId}`, payload).then(
