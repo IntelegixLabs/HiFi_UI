@@ -16,7 +16,7 @@ export default function Modal({
     <div
       id="wrapper"
       onClick={handleCloseOnClickingOutside}
-      className={`fixed inset-0 flex justify-center duration-300 ease-in-out z-40 ${
+      className={`fixed inset-0 flex justify-center duration-300 ease-in-out z-50 ${
         open ? "visible bg-black/60" : "invisible"
       }`}
     >
