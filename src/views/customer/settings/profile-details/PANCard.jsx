@@ -71,7 +71,7 @@ export default function PANCard() {
       <Modal
         open={showRemovePANCardConfirmModal}
         onClose={() => setShowRemovePANCardConfirmModal(false)}
-        applyClass="max-w-md"
+        applyclassName="max-w-md"
       >
         <div className="px-4 pt-2 text-center rounded">
           <h6 className="inter text-lg font-semibold">Delete PAN card?</h6>

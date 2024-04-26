@@ -1,9 +1,10 @@
-import React from "react";
+import React, { Fragment } from "react";
 import dayjs from "dayjs";
+import { autoFormatCurrency } from "@/GeneralHelpers.jsx";
 
 import LineChart from "@components/common/charts/LineChart.jsx";
 
-export default function StockEarnings({ data }) {
+export default function StockEarnings({ data, overview }) {
   let labels = [];
   let reportedEPS = [];
 
@@ -50,5 +51,40 @@ export default function StockEarnings({ data }) {
     ],
   };
 
-  return <LineChart options={initOptions} data={initData} />;
+  return (
+    <Fragment>
+      <LineChart options={initOptions} data={initData} />
+
+      <div className="my-10 text-xs flex flex-wrap items-start justify-center gap-2">
+        <div className="px-2 py-1 border rounded-full">
+          <span className="text-gray-500">Mkt. Cap: </span>
+          <span className="font-medium">
+            {autoFormatCurrency(overview.MarketCapitalization)}
+          </span>
+        </div>
+        <div className="px-2 py-1 border rounded-full">
+          <span className="text-gray-500">P/E: </span>
+          <span className="font-medium">{overview.PERatio}</span>
+        </div>
+        <div className="px-2 py-1 border rounded-full">
+          <span className="text-gray-500">PEG: </span>
+          <span className="font-medium">{overview.PEGRatio}</span>
+        </div>
+        <div className="px-2 py-1 border rounded-full">
+          <span className="text-gray-500">P/S: </span>
+          <span className="font-medium">{overview.PriceToSalesRatioTTM}</span>
+        </div>
+        <div className="px-2 py-1 border rounded-full">
+          <span className="text-gray-500">EBITDA: </span>
+          <span className="font-medium">
+            {autoFormatCurrency(overview.EBITDA)}
+          </span>
+        </div>
+        <div className="px-2 py-1 border rounded-full">
+          <span className="text-gray-500">P/B: </span>
+          <span className="font-medium">{overview.PriceToBookRatio}</span>
+        </div>
+      </div>
+    </Fragment>
+  );
 }

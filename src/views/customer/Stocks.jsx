@@ -1,6 +1,7 @@
 import { useContext, useEffect, useState, useRef, Fragment } from "react";
 import { AppConfigContext } from "@contexts/AppConfigContext.jsx";
 import dayjs from "dayjs";
+import CompanyStockTicker from "@views/customer/ticker/CompanyStockTicker";
 
 // Sample data ================================================================
 // Samples for Stocks Fundamental Data
@@ -36,7 +37,6 @@ import TimeSeriesDailyGraph from "@views/customer/stocks/TimeSeriesDailyGraph.js
 import TimeSeriesWeeklyGraph from "@views/customer/stocks/TimeSeriesWeeklyGraph.jsx";
 import TimeSeriesMonthlyGraph from "@views/customer/stocks/TimeSeriesMonthlyGraph.jsx";
 import StockHome from "@views/customer/stocks/StockHome.jsx";
-import { autoFormatCurrency } from "@/GeneralHelpers.jsx";
 
 import { Api } from "@api/Api.jsx";
 
@@ -338,6 +338,7 @@ export default function Stocks() {
 
   return (
     <div className="max-w-7xl mx-auto">
+      <CompanyStockTicker direction="left" />
       <div className="mt-6">
         <div className="flex mb-4">
           <select
@@ -398,7 +399,7 @@ export default function Stocks() {
               <div className="w-2/6">
                 <p className="w-full text-right text-blue-600">
                   {Overview.Currency}{" "}
-                  {autoFormatCurrency(Overview.MarketCapitalization)}
+                  {Overview.MarketCapitalization}
                 </p>
               </div>
             </div>
@@ -415,48 +416,7 @@ export default function Stocks() {
                     <div className="w-1/2 p-4 border rounded-lg">
                       {!isStockEarningsLoading && (
                         <Fragment>
-                          <StockEarnings data={Earnings} />
-
-                          <div className="my-10 text-xs flex flex-wrap items-start justify-center gap-2">
-                            <div className="px-2 py-1 border rounded-full">
-                              <span className="text-gray-500">Mkt. Cap: </span>
-                              <span className="font-medium">
-                                {autoFormatCurrency(
-                                  Overview.MarketCapitalization
-                                )}
-                              </span>
-                            </div>
-                            <div className="px-2 py-1 border rounded-full">
-                              <span className="text-gray-500">P/E: </span>
-                              <span className="font-medium">
-                                {Overview.PERatio}
-                              </span>
-                            </div>
-                            <div className="px-2 py-1 border rounded-full">
-                              <span className="text-gray-500">PEG: </span>
-                              <span className="font-medium">
-                                {Overview.PEGRatio}
-                              </span>
-                            </div>
-                            <div className="px-2 py-1 border rounded-full">
-                              <span className="text-gray-500">P/S: </span>
-                              <span className="font-medium">
-                                {Overview.PriceToSalesRatioTTM}
-                              </span>
-                            </div>
-                            <div className="px-2 py-1 border rounded-full">
-                              <span className="text-gray-500">EBITDA: </span>
-                              <span className="font-medium">
-                                {autoFormatCurrency(Overview.EBITDA)}
-                              </span>
-                            </div>
-                            <div className="px-2 py-1 border rounded-full">
-                              <span className="text-gray-500">P/B: </span>
-                              <span className="font-medium">
-                                {Overview.PriceToBookRatio}
-                              </span>
-                            </div>
-                          </div>
+                          <StockEarnings data={Earnings} overview={Overview} />
                         </Fragment>
                       )}
                     </div>
