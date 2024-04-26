@@ -1,5 +1,6 @@
 import { Fragment, useState } from "react";
 import { Api } from "@api/Api.jsx";
+import dayjs from "dayjs";
 
 export default function Onboarding() {
   const [phoneNumber, setPhoneNumber] = useState(0);
@@ -19,20 +20,22 @@ export default function Onboarding() {
     }
 
     if (name === "dob") {
-      setDob(value);
+      let formatDob = dayjs(value).format('DD-MM-YYYY');
+      setDob(formatDob);
+      console.log("Hello World:", formatDob);
     }
 
     return;
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = () => {
     const payload = {
       phoneNumber: phoneNumber,
       gender: gender,
       dob: dob,
     };
 
-    await Api.post("/profile").then((response) => {
+    Api.post("/profile", payload).then((response) => {
       navigate("/");
     });
   };
