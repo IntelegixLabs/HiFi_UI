@@ -16,7 +16,7 @@ import IMG_USER_PROFILE from "@assets/profile_pic.png";
 
 export default function UserSettings() {
   const location = useLocation();
-  const { userId, firstName, lastName, email, phoneNumber } =
+  const { userId, firstName, lastName, email, phoneNumber, setUsername, setFirstName, setLastName, setEmail } =
     useContext(UserProfileContext);
 
   const [showDeleteConfirmModal, setShowDisconnectWalletConfirmModal] =
@@ -171,10 +171,10 @@ export default function UserSettings() {
   }, [web3Account]);
 
   useEffect(() => {
-    async function fetchData() {
-      await Api.get("/profile")
+    function fetchData() {
+      Api.get("/profile")
         .then((response) => {
-          setUsername(response.data.username);
+          // setUsername(response.data.username);
           setEmail(response.data.email);
           setFirstName(response.data.first_name);
           setLastName(response.data.last_name);
