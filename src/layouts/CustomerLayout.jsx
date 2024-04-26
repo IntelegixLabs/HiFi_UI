@@ -67,7 +67,7 @@ export default function CustomerLayout() {
       <Navbar />
       <df-messenger
         project-id="hifi-420618"
-        agent-id="9a000ad6-cbdc-4d8a-832b-6e9728bb577e"
+        agent-id={import.meta.env.VITE_APP_DIALOGUE_FLOW_AGENT_ID}
         language-code="en"
         max-query-length="-1"
       >
