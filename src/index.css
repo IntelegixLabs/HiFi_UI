@@ -15,4 +15,11 @@
     transform: translate(0) scale(1);
     visibility: visible;
   }
+
+  .PhoneInput {
+    @apply flex items-center
+  }
+  .PhoneInput .PhoneInputInput {
+    @apply py-1 border-b focus:border-gray-400 outline-none duration-200
+  }
 }

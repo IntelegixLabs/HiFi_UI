@@ -1,43 +1,38 @@
 import { Fragment, useContext, useEffect, useState } from "react";
 import { Api } from "@api/Api.jsx";
+
 import dayjs from "dayjs";
+
+import "react-phone-number-input/style.css";
+import PhoneInput, { formatPhoneNumberIntl } from "react-phone-number-input";
+
 import { UserProfileContext } from "@contexts/UserProfileContext.jsx";
+import { useNavigate } from "react-router-dom";
 
 export default function Onboarding() {
   const {
     phoneNumber,
     gender,
     DOB,
+    isCustomerProfileExist,
     setPhoneNumber,
     setGender,
     setDOB,
   } = useContext(UserProfileContext);
 
-  const handleChange = (e) => {
-    let name = e.target.name;
-    let value = e.target.value;
+  const navigate = useNavigate();
 
-    if (name === "phone_number") {
-      setPhoneNumber(value);
+  useEffect(() => {
+    if (isCustomerProfileExist) {
+      navigate("/");
     }
-
-    if (name === "gender") {
-      setGender(value);
-    }
-
-    if (name === "dob") {
-      let formatDob = dayjs(value).format("DD-MM-YYYY");
-      setDOB(formatDob);
-    }
-
-    return;
-  };
+  }, []);
 
   const handleSubmit = () => {
     const payload = {
-      phoneNumber: phoneNumber,
+      phoneNumber: formatPhoneNumberIntl(phoneNumber),
       gender: gender,
-      dob: DOB,
+      dob: dayjs(DOB).format("DD-MM-YYYY"),
     };
 
     Api.post("/profile", payload).then((response) => {
@@ -52,27 +47,27 @@ export default function Onboarding() {
         <p className="text-gray-500">
           Before you get started, let's setup your account.
         </p>
+
         <div className="mt-10 flex flex-col">
-          <label htmlFor="phone_number">Phone number:</label>
-          <input
-            name="phone_number"
-            className="mt-1 px-2 py-1 border rounded-lg"
-            type="text"
-            placeholder="Phone number"
+          <h6 className="text-base font-semibold">Phone number:</h6>
+          <PhoneInput
+            defaultCountry="IN"
+            placeholder="Enter phone number"
             value={phoneNumber}
-            onChange={(e) => handleChange(e)}
+            onChange={setPhoneNumber}
           />
         </div>
-        <div className="mt-6 flex flex-col">
-          <label>Gender</label>
-          <div className="flex space-x-4">
+
+        <div className="mt-10 flex flex-col">
+          <h6 className="text-base font-semibold">Gender:</h6>
+          <div className="mt-2 flex space-x-4">
             <div>
               <input
                 name="gender"
                 type="radio"
                 value="Male"
-                onChange={(e) => handleChange(e)}
-                checked={gender === 'Male'}
+                onChange={(e) => setGender(e.target.value)}
+                checked={gender === "Male"}
               />{" "}
               Male
             </div>
@@ -81,21 +76,23 @@ export default function Onboarding() {
                 name="gender"
                 type="radio"
                 value="Female"
-                onChange={(e) => handleChange(e)}
-                checked={gender === 'Female'}
+                onChange={(e) => setGender(e.target.value)}
+                checked={gender === "Female"}
               />{" "}
               Female
             </div>
           </div>
         </div>
-        <div className="mt-6 flex flex-col">
-          <label htmlFor="dob">Date of birth:</label>
+
+        <div className="mt-10 flex flex-col">
+          <h6 className="text-base font-semibold">Date of birth:</h6>
           <input
             id="dob"
             name="dob"
-            className="mt-1 px-2 py-1 border rounded-lg"
+            className="mt-2 border-b focus:border-gray-400 outline-none duration-200"
             type="date"
-            onChange={(e) => handleChange(e)}
+            value={DOB}
+            onChange={(e) => setDOB(e.target.value)}
           />
         </div>
 

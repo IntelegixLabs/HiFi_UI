@@ -1,6 +1,10 @@
 import { useEffect, useState } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 
+import dayjs from "dayjs";
+import customParseFormat from 'dayjs/plugin/customParseFormat';
+dayjs.extend(customParseFormat);
+
 import { Api } from "@api/Api.jsx";
 import Navbar from "@components/customer/Navbar/Navbar.jsx";
 import { UserProfileContext } from "../contexts/UserProfileContext";
@@ -8,8 +12,9 @@ import { UserProfileContext } from "../contexts/UserProfileContext";
 export default function CustomerLayout() {
   const navigate = useNavigate();
 
-  const [isCustomerExist, setCustomerExist] = useState(false);
-  const [isProfileExist, setProfileExist] = useState(false);
+  const [isCustomerProfileExist, setIsCustomerProfileExist] = useState(false);
+  const [isCustomerProfileLoading, setIsCustomerProfileLoading] =
+    useState(true);
   const [customer, setCustomer] = useState({});
 
   const [userId, setUserId] = useState("");
@@ -26,13 +31,16 @@ export default function CustomerLayout() {
         Api.get("/status/health").then((res) => {
           Api.get("/profile")
             .then((response) => {
-              setCustomerExist(true);
+              setIsCustomerProfileExist(true);
+              setIsCustomerProfileLoading(true);
               setCustomer(response.data);
 
               setPhoneNumber(response.data.phoneNumber);
               setGender(response.data.gender);
-              setDOB(response.data.dob);
+              setDOB(dayjs(response.data.dob, 'DD-MM-YYYY').format('YYYY-MM-DD'));
               setUserId(response.data.userId);
+
+              console.log("Date time:", DOB);
 
               Api.get("/profile/1")
                 .then((response) => {
@@ -43,9 +51,12 @@ export default function CustomerLayout() {
                 .catch((error) => {
                   console.log(error);
                 });
+
+              setIsCustomerProfileLoading(false);
             })
             .catch((error) => {
-              setCustomerExist(false);
+              setIsCustomerProfileExist(false);
+              setIsCustomerProfileLoading(false);
               navigate("/onboarding");
             });
         });
@@ -64,12 +75,13 @@ export default function CustomerLayout() {
         phoneNumber,
         gender,
         DOB,
+        isCustomerProfileExist,
         setFirstName,
         setLastName,
         setEmail,
         setPhoneNumber,
         setGender,
-        setDOB
+        setDOB,
       }}
     >
       <Navbar />
@@ -81,7 +93,10 @@ export default function CustomerLayout() {
       >
         <df-messenger-chat-bubble chat-title=""></df-messenger-chat-bubble>
       </df-messenger>
-      <Outlet />
+
+      {isCustomerProfileLoading && <h1>Loading .... Please Wait...</h1>}
+
+      {!isCustomerProfileLoading && <Outlet />}
     </UserProfileContext.Provider>
   );
 }

@@ -1,8 +1,12 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Api } from "@api/Api.jsx";
 import PieChart from "../../components/common/charts/PieChart";
 
+import { UserProfileContext } from "@contexts/UserProfileContext.jsx";
+
 export default function InvestorPersonality() {
+    const { userId } = useContext(UserProfileContext);
+
   const [isLoading, setIsLoading] = useState(true);
   const [isDataExist, setIsDataExist] = useState(false);
   const [noOfDependents, setNoOfDependents] = useState(0);
@@ -34,6 +38,8 @@ export default function InvestorPersonality() {
               response.data.stocks_mutual_funds_investment
             );
           }
+
+          setIsLoading(false);
         })
         .catch((error) => {
           console.log(error);
@@ -53,7 +59,7 @@ export default function InvestorPersonality() {
       stocks_mutual_funds_investment: parseInt(stocksMutualFundInvestment),
     };
 
-    Api.post("investment-profile/data", payload)
+    Api.put(`investment-profile/data/${userId}`, payload)
       .then((response) => {})
       .catch((error) => {
         console.log(error);
@@ -120,54 +126,10 @@ export default function InvestorPersonality() {
       {!isLoading && (
         <div className="flex gap-10">
           <div className="w-1/2">
-            <div className="mt-2 flex flex-col">
-              <label>No of dependents:</label>
+            <div className="mt-10 w-1/2 flex flex-col">
+              <h6 className="text-base font-semibold">Salary</h6>
               <input
-                className="mt-1 px-2 py-2 border rounded-lg"
-                type="number"
-                placeholder="i.e. 4"
-                value={noOfDependents}
-                onChange={(e) => setNoOfDependents(e.target.value)}
-              />
-            </div>
-
-            <div className="mt-2 flex flex-col">
-              <label>Term Insurance cover amount:</label>
-              <input
-                className="mt-1 px-2 py-2 border rounded-lg"
-                type="number"
-                placeholder="i.e. 750"
-                value={termInsuranceCover}
-                onChange={(e) => setTermInsuranceCover(e.target.value)}
-              />
-            </div>
-
-            <div className="mt-2 flex flex-col">
-              <label>Liabilities amount</label>
-              <input
-                className="mt-1 px-2 py-2 border rounded-lg"
-                type="number"
-                placeholder="i.e. 12000"
-                value={liabilitiesAmount}
-                onChange={(e) => setLiabilitiesAmount(e.target.value)}
-              />
-            </div>
-
-            <div className="mt-2 flex flex-col">
-              <label>Fixed deposits</label>
-              <input
-                className="mt-1 px-2 py-2 border rounded-lg"
-                type="number"
-                placeholder="i.e. 12000"
-                value={fixedDeposit}
-                onChange={(e) => setFixedDeposit(e.target.value)}
-              />
-            </div>
-
-            <div className="mt-2 flex flex-col">
-              <label>Salary:</label>
-              <input
-                className="mt-1 px-2 py-2 border rounded-lg"
+                className="mt-2 border-b focus:border-gray-400 outline-none duration-200"
                 type="number"
                 placeholder="i.e. 82000"
                 value={salary}
@@ -175,56 +137,113 @@ export default function InvestorPersonality() {
               />
             </div>
 
-            <div className="mt-2 flex flex-col">
-              <label>Medical Insurance cover:</label>
-              <input
-                className="mt-1 px-2 py-2 border rounded-lg"
-                type="number"
-                placeholder="i.e. 82000"
-                value={medicalInsuranceCover}
-                onChange={(e) => setMedicalInsuranceCover(e.target.value)}
-              />
-            </div>
-
-            <div className="mt-2 flex flex-col">
-              <label>Disabilities:</label>
-              <div className="flex space-x-10">
-                <div>
-                  <input
-                    name="disabilities"
-                    type="radio"
-                    value={disabilities}
-                    onChange={(e) => setDisabilities(true)}
-                    checked={disabilities}
-                  />{" "}
-                  Yes
-                </div>
-                <div>
-                  <input
-                    name="disabilities"
-                    type="radio"
-                    value={!disabilities}
-                    onChange={(e) => setDisabilities(false)}
-                    checked={!disabilities}
-                  />{" "}
-                  No
+            <div className="mt-10 flex gap-10">
+              <div className="w-1/2 flex flex-col">
+                <h6 className="text-base font-semibold">No of dependents:</h6>
+                <input
+                  className="mt-2 border-b focus:border-gray-400 outline-none duration-200"
+                  type="number"
+                  placeholder="i.e. 4"
+                  value={noOfDependents}
+                  onChange={(e) => setNoOfDependents(e.target.value)}
+                />
+              </div>
+              <div className="w-1/2 flex flex-col">
+                <div className="mt-2 flex flex-col">
+                  <h6 className="text-base font-semibold">Any disabilities?</h6>
+                  <div className="flex">
+                    <div className="w-1/2">
+                      <input
+                        name="disabilities"
+                        type="radio"
+                        value={disabilities}
+                        onChange={(e) => setDisabilities(true)}
+                        checked={disabilities}
+                      />{" "}
+                      Yes
+                    </div>
+                    <div className="w-1/2">
+                      <input
+                        name="disabilities"
+                        type="radio"
+                        value={!disabilities}
+                        onChange={(e) => setDisabilities(false)}
+                        checked={!disabilities}
+                      />{" "}
+                      No
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
 
-            <div className="mt-2 flex flex-col">
-              <label>Stocks / Mutual Funds / Other:</label>
+            <div className="mt-10 flex gap-10">
+              <div className="w-1/2 flex flex-col">
+                <h6 className="text-base font-semibold">
+                  Term Insurance Cover:
+                </h6>
+                <input
+                  className="mt-2 border-b focus:border-gray-400 outline-none duration-200"
+                  type="number"
+                  placeholder="i.e. 750"
+                  value={termInsuranceCover}
+                  onChange={(e) => setTermInsuranceCover(e.target.value)}
+                />
+              </div>
+              <div className="w-1/2 flex flex-col">
+                <h6 className="text-base font-semibold">
+                  Medical Insurance Cover:
+                </h6>
+                <input
+                  className="mt-2 border-b focus:border-gray-400 outline-none duration-200"
+                  type="number"
+                  placeholder="i.e. 82000"
+                  value={medicalInsuranceCover}
+                  onChange={(e) => setMedicalInsuranceCover(e.target.value)}
+                />
+              </div>
+            </div>
+
+            <div className="mt-10 flex gap-10">
+              <div className="w-1/2 flex flex-col">
+                <h6 className="text-base font-semibold">Fixed Deposit (FD)</h6>
+                <input
+                  className="mt-2 border-b focus:border-gray-400 outline-none duration-200"
+                  type="number"
+                  placeholder="i.e. 12000"
+                  value={fixedDeposit}
+                  onChange={(e) => setFixedDeposit(e.target.value)}
+                />
+              </div>
+              <div className="w-1/2 flex flex-col">
+                <h6 className="text-base font-semibold">
+                  Stocks / Mutual Fund / Others:
+                </h6>
+                <input
+                  className="mt-2 border-b focus:border-gray-400 outline-none duration-200"
+                  type="number"
+                  placeholder="i.e. 500000"
+                  value={stocksMutualFundInvestment}
+                  onChange={(e) =>
+                    setStocksMutualFundInvestment(e.target.value)
+                  }
+                />
+              </div>
+            </div>
+
+            <div className="mt-10 w-1/2 flex flex-col">
+              <h6 className="text-base font-semibold">Liabilities:</h6>
               <input
-                className="mt-1 px-2 py-2 border rounded-lg"
+                className="mt-2 border-b focus:border-gray-400 outline-none duration-200"
                 type="number"
-                placeholder="i.e. 500000"
-                value={stocksMutualFundInvestment}
-                onChange={(e) => setStocksMutualFundInvestment(e.target.value)}
+                placeholder="i.e. 12000"
+                value={liabilitiesAmount}
+                onChange={(e) => setLiabilitiesAmount(e.target.value)}
               />
             </div>
 
             <button
-              className="w-full font-semibold mt-6 px-4 py-3 text-white bg-blue-500 hover:bg-blue-600 rounded-lg"
+              className="mt-10 w-full font-semibold px-4 py-3 text-white bg-blue-500 hover:bg-blue-600 rounded-lg"
               onClick={handleSubmit}
             >
               Submit
