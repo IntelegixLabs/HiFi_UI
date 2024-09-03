@@ -7,6 +7,7 @@
 $ git clone https://github.com/IntelegixLabs/HiFi_UI.git
 $ cd HiFi_UI
 $ npm i
+$ npm run dev
 ```
 
 ## 2. Getting Started With The Flask API Application
